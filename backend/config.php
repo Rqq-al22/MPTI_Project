@@ -1,4 +1,16 @@
-$DB_HOST = getenv('LABIRIN_DB_HOST') ?: '127.0.0.1';
-$DB_NAME = getenv('LABIRIN_DB_NAME') ?: 'mpti_db';
-$DB_USER = getenv('LABIRIN_DB_USER') ?: 'root';
-$DB_PASS = getenv('LABIRIN_DB_PASS') ?: '';
+<?php
+// KONFIGURASI DATABASE
+$host     = "localhost";
+$username = "root";
+$password = "";
+$database = "mpti_db";
+
+// Kasih konek
+
+$db = mysqli_connect($host, $username, $password, $database);
+
+// Cek
+if (!$db) {
+    die("Koneksi database gagal: " . mysqli_connect_error());
+}
+?>

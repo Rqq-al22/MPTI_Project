@@ -126,5 +126,6 @@ CREATE TABLE monitoring (
 
 -- tambah role dan user dkk
 INSERT INTO users (username, password, id_role)
-VALUES ('E1E124', 'oke', 1);
+VALUES ('admin@gmail.com', 'oke', 1);
+
 

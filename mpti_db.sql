@@ -124,6 +124,7 @@ CREATE TABLE monitoring (
     FOREIGN KEY (id_user) REFERENCES users(id_user)
 );
 
--- =====================================
--- SELESAI
--- =====================================
+-- tambah role dan user dkk
+INSERT INTO users (username, password, id_role)
+VALUES ('E1E124', 'oke', 1);
+

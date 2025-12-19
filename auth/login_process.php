@@ -14,28 +14,30 @@ if ($role === '' || $identity === '' || $password === '') {
 /* =========================
    LOGIN MAHASISWA
    ========================= */
-if ($role === 'mahasiswa') {
+elseif ($role === 'admin') {
 
     $stmt = $conn->prepare("
         SELECT u.id_user, u.username, u.password, u.id_role
         FROM users u
-        JOIN mahasiswa m ON u.id_user = m.id_user
-        WHERE u.id_role = 3 AND m.nim = ?
+        JOIN admin a ON u.id_user = a.id_user
+        WHERE u.username = ?
         LIMIT 1
     ");
     $stmt->bind_param("s", $identity);
     $stmt->execute();
     $user = $stmt->get_result()->fetch_assoc();
 
-    if ($user && $password === $user['password']) {
+    if ($user && $user['id_role'] == 1 && $password === $user['password']) {
+
         $_SESSION['user_id']  = $user['id_user'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['id_role']  = $user['id_role'];
 
-        header("Location: ../mahasiswa/dashboard_mahasiswa.php");
+        header("Location: ../admin/dashboard_admin.php");
         exit;
     }
 }
+
 
 /* =========================
    LOGIN DOSEN (FIX UTAMA)

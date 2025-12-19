@@ -2,6 +2,8 @@
 require_once "../auth/auth_check.php";
 require_role('dosen');
 require_once "../config/db.php";
+log_activity($conn, "Memvalidasi presensi mahasiswa bimbingan");
+
 
 $id_presensi = (int)($_GET['id'] ?? 0);
 $aksi = $_GET['aksi'] ?? '';

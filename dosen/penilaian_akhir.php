@@ -2,6 +2,8 @@
 require_once "../auth/auth_check.php";
 require_role('dosen');
 require_once "../config/db.php";
+log_activity($conn, "Menginput nilai Kerja Praktik mahasiswa");
+
 
 $current_page  = 'penilaian_akhir.php';
 $page_title    = "Penilaian Akhir";

@@ -2,6 +2,13 @@
 require_once "../auth/auth_check.php";
 require_role('admin');
 require_once "../config/db.php";
+require_once "../helpers/log_helper.php";
+
+log_activity(
+  $conn,
+  "Menetapkan dosen pembimbing untuk mahasiswa NIM {$kp['nim']}"
+);
+
 
 /* ===============================
    KONFIGURASI HALAMAN

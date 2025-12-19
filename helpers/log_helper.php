@@ -21,3 +21,36 @@ function log_activity(mysqli $conn, string $aktivitas)
     $stmt->bind_param("si", $aktivitas, $id_user);
     $stmt->execute();
 }
+
+
+/**
+ * Helper upload foto profil
+ */
+function upload_foto($file, $folder = "../uploads/profile/")
+{
+    if (!isset($file) || $file['error'] !== UPLOAD_ERR_OK) {
+        return null;
+    }
+
+    $allowed = ['jpg', 'jpeg', 'png'];
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+    if (!in_array($ext, $allowed)) {
+        return null;
+    }
+
+    if (!is_dir($folder)) {
+        mkdir($folder, 0777, true);
+    }
+
+    $filename = uniqid('profile_') . '.' . $ext;
+    $target = $folder . $filename;
+
+    if (move_uploaded_file($file['tmp_name'], $target)) {
+        return $filename;
+    }
+
+    return null;
+}
+
+?>

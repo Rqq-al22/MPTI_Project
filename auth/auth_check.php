@@ -1,9 +1,9 @@
 <?php
 session_start();
 
-/* =====================================================
+/* ===============================
    CEK SUDAH LOGIN
-   ===================================================== */
+   =============================== */
 function require_login() {
     if (!isset($_SESSION['user_id']) || !isset($_SESSION['id_role'])) {
         header("Location: ../auth/login_form.php");
@@ -11,9 +11,9 @@ function require_login() {
     }
 }
 
-/* =====================================================
-   CEK ROLE (ROLE-BASED ACCESS CONTROL)
-   ===================================================== */
+/* ===============================
+   CEK ROLE
+   =============================== */
 function require_role($role) {
     require_login();
 
@@ -24,10 +24,10 @@ function require_role($role) {
     ];
 
     if (!isset($map[$role])) {
-        die("Role tidak dikenali");
+        die("Role tidak valid");
     }
 
-    if ((int)$_SESSION['id_role'] !== $map[$role]) {
+    if ($_SESSION['id_role'] !== $map[$role]) {
         die("Akses ditolak: bukan $role");
     }
 }

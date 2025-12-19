@@ -112,12 +112,15 @@ if (!isset($_SESSION['id_role']) || $_SESSION['id_role'] != 2) {
           <label>Akun</label>
         </li>
 
-        <li class="pc-item <?= ($current_page == 'profil.php') ? 'active' : '' ?>">
-          <a href="profil.php" class="pc-link">
-            <span class="pc-micon"><i class="ti ti-user"></i></span>
-            <span class="pc-mtext">Profil</span>
-          </a>
-        </li>
+        <li class="pc-item">
+  <a href="../profile/profile.php" class="pc-link">
+    <span class="pc-micon">
+      <i class="bi bi-person-circle"></i>
+    </span>
+    <span class="pc-mtext">Profil</span>
+  </a>
+</li>
+
 
         <li class="pc-item">
           <a href="../auth/logout.php" class="pc-link text-danger">

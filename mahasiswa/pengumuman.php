@@ -1,5 +1,8 @@
 <?php
 require_once "../auth/auth_check.php";
+require_role('mahasiswa');
+require_once "../config/db.php";
+
 $current_page = 'pengumuman.php';
 
 $page_title = "Pengumuman";

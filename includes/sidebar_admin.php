@@ -61,14 +61,7 @@
           </a>
         </li>
 
-        <li class="pc-item <?= ($current_page === 'assign_bimbingan.php') ? 'active' : '' ?>">
-          <a href="../admin/assign_bimbingan.php" class="pc-link">
-            <span class="pc-micon">
-              <i class="ti ti-link"></i>
-            </span>
-            <span class="pc-mtext">Assign Bimbingan</span>
-          </a>
-        </li>
+     
 
         <!-- MONITORING -->
         <li class="pc-item pc-caption">
@@ -81,6 +74,15 @@
               <i class="ti ti-chart-bar"></i>
             </span>
             <span class="pc-mtext">Monitoring KP</span>
+          </a>
+
+        </li>
+         <li class="pc-item <?= ($current_page === 'monitoring_kp.php') ? 'active' : '' ?>">
+          <a href="../admin/monitoring.php" class="pc-link">
+            <span class="pc-micon">
+              <i class="ti ti-chart-bar"></i>
+            </span>
+            <span class="pc-mtext">Monitoring Sistem</span>
           </a>
         </li>
 

@@ -1,0 +1,47 @@
+.pc-container,
+.pc-content,
+.pc-header {
+    filter: none !important;
+    backdrop-filter: none !important;
+}
+/* ================================================= */
+/* SIDEBAR FIXED + MENU SCROLL (DATTA ABLE FIX FINAL) */
+/* ================================================= */
+
+/* Sidebar fixed */
+.pc-sidebar {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    height: 100vh !important;
+    z-index: 1026;
+}
+
+/* Wrapper sidebar */
+.pc-sidebar .navbar-wrapper {
+    height: 100vh !important;
+    overflow: hidden !important;
+}
+
+/* INI KUNCI UTAMA SCROLL MENU */
+.pc-sidebar .navbar-content {
+    height: calc(100vh - 70px) !important; /* 70px = tinggi logo */
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+/* Supaya konten utama tidak ketimpa sidebar */
+.pc-container {
+    margin-left: 280px; /* sesuaikan dengan lebar sidebar Datta Able */
+    height: 100vh;
+    overflow-y: auto;
+}
+
+/* Optional scrollbar style */
+.pc-sidebar .navbar-content::-webkit-scrollbar {
+    width: 6px;
+}
+.pc-sidebar .navbar-content::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.4);
+    border-radius: 4px;
+}

@@ -19,10 +19,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans&display=swap" rel="stylesheet">
 
     <!-- CSS FILES -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/bootstrap-icons.css" rel="stylesheet">
-    <link href="css/templatemo-topic-listing.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
+       <link href="../MPTI_Project/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../MPTI_Project/assets/css/bootstrap-icons.css" rel="stylesheet">
+    <link href="../MPTI_Project/assets/css/templatemo-topic-listing.css" rel="stylesheet">
+    <link href="../MPTI_Project/assets/css/style.css" rel="stylesheet">
 </head>
 
 <body>

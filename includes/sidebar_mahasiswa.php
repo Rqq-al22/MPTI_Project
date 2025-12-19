@@ -167,12 +167,15 @@ $role = $_SESSION['role'] ?? '';
 
 <li class="pc-item pc-caption"><label>AKUN</label></li>
 
-<li class="pc-item <?= $current_page=='profil.php'?'active':'' ?>">
-  <a href="profil.php" class="pc-link">
-    <span class="pc-micon"><i class="ph ph-user"></i></span>
+<li class="pc-item">
+  <a href="../profile/profile.php" class="pc-link">
+    <span class="pc-micon">
+      <i class="bi bi-person-circle"></i>
+    </span>
     <span class="pc-mtext">Profil</span>
   </a>
 </li>
+
 
 <?php endif; ?>
 

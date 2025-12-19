@@ -1,8 +1,9 @@
 <?php
+
 require_once "../auth/auth_check.php";
 require_role('mahasiswa');
 require_once "../config/db.php";
-log_activity($conn, "Melakukan presensi harian");
+
 
 
 /* ================== KONFIGURASI ================== */

@@ -63,8 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $kp) {
     if (!$error) {
         $stmt = $conn->prepare("
             INSERT INTO laporan_mingguan
-            (id_kp, minggu_ke, judul, ringkasan, file_laporan, tanggal_upload)
-            VALUES (?, ?, ?, ?, ?, CURDATE())
+            (id_kp, minggu_ke, judul, ringkasan, file_laporan, status, tanggal_upload)
+            VALUES (?, ?, ?, ?, ?, 'Menunggu', CURDATE())
         ");
         $stmt->bind_param(
             "iisss",
@@ -87,13 +87,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $kp) {
 $laporan = [];
 if ($kp) {
     $q_lap = $conn->prepare("
-        SELECT * FROM laporan_mingguan
+        SELECT minggu_ke, judul, tanggal_upload, file_laporan, status
+        FROM laporan_mingguan
         WHERE id_kp = ?
         ORDER BY minggu_ke ASC
     ");
     $q_lap->bind_param("i", $kp['id_kp']);
     $q_lap->execute();
     $laporan = $q_lap->get_result();
+}
+
+/* ================= HELPER STATUS BADGE ================= */
+function badgeStatus($status)
+{
+    switch ($status) {
+        case 'Menunggu':
+            return ['warning', 'Menunggu Review'];
+        case 'Disetujui':
+            return ['success', 'Disetujui'];
+        case 'Ditolak':
+            return ['danger', 'Ditolak'];
+        default:
+            return ['secondary', '-'];
+    }
 }
 
 include "../includes/layout_top.php";
@@ -161,12 +177,13 @@ include "../includes/header.php";
 <div class="card-body">
 <h5>Riwayat Laporan</h5>
 
-<table class="table table-bordered">
+<table class="table table-bordered align-middle">
 <thead>
 <tr>
     <th>Minggu</th>
     <th>Judul</th>
     <th>Tanggal</th>
+    <th>Status</th>
     <th>File</th>
 </tr>
 </thead>
@@ -174,13 +191,17 @@ include "../includes/header.php";
 
 <?php if ($laporan->num_rows == 0): ?>
 <tr>
-    <td colspan="4" class="text-center">Belum ada laporan.</td>
+    <td colspan="5" class="text-center">Belum ada laporan.</td>
 </tr>
 <?php else: while ($l = $laporan->fetch_assoc()): ?>
+<?php [$badge, $label] = badgeStatus($l['status']); ?>
 <tr>
     <td><?= $l['minggu_ke'] ?></td>
     <td><?= htmlspecialchars($l['judul']) ?></td>
     <td><?= date('d M Y', strtotime($l['tanggal_upload'])) ?></td>
+    <td class="text-center">
+        <span class="badge bg-<?= $badge ?>"><?= $label ?></span>
+    </td>
     <td>
         <a href="../uploads/laporan/<?= $l['file_laporan'] ?>"
            target="_blank"

@@ -1,6 +1,11 @@
 <?php
 session_start();
 require_once "../config/db.php";
+require_once "../helpers/log_helper.php";
+
+// setelah login berhasil
+log_activity($conn, "Login ke sistem");
+
 
 $role     = $_POST['role'] ?? '';
 $identity = trim($_POST['identity'] ?? '');

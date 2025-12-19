@@ -77,7 +77,7 @@
           </a>
 
         </li>
-         <li class="pc-item <?= ($current_page === 'monitoring_kp.php') ? 'active' : '' ?>">
+         <li class="pc-item <?= ($current_page === 'monitoring.php') ? 'active' : '' ?>">
           <a href="../admin/monitoring.php" class="pc-link">
             <span class="pc-micon">
               <i class="ti ti-chart-bar"></i>
@@ -105,8 +105,8 @@
           <label>Akun</label>
         </li>
 
-        <li class="pc-item <?= ($current_page === 'profil.php') ? 'active' : '' ?>">
-          <a href="../admin/profil.php" class="pc-link">
+        <li class="pc-item <?= ($current_page === 'profile.php') ? 'active' : '' ?>">
+          <a href="../profile/profile.php" class="pc-link">
             <span class="pc-micon">
               <i class="ti ti-user-circle"></i>
             </span>

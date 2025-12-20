@@ -3,17 +3,17 @@ require_once "../auth/auth_check.php";
 require_role('dosen');
 require_once "../config/db.php";
 
+/* ===============================
+   KONFIGURASI
+   =============================== */
 $current_page  = 'presensi_mhs.php';
-$page_title    = "Presensi Mahasiswa";
+$page_title    = "Presensi Mahasiswa Bimbingan";
 $asset_prefix  = "../";
 $logout_prefix = "../";
 
-include "../includes/layout_top.php";
-include "../includes/sidebar_dosen.php";
-
-/* ======================================================
-   AMBIL NIDN DOSEN DARI SESSION (LEWAT USERS)
-   ====================================================== */
+/* ===============================
+   AMBIL NIDN DOSEN LOGIN
+   =============================== */
 $user_id = $_SESSION['user_id'];
 
 $stmt = $conn->prepare("
@@ -27,127 +27,177 @@ $stmt->execute();
 $dosen = $stmt->get_result()->fetch_assoc();
 
 if (!$dosen) {
-    echo "<div class='alert alert-danger m-3'>Data dosen tidak ditemukan.</div>";
-    include "../includes/layout_bottom.php";
-    exit;
+    die("Data dosen tidak ditemukan");
 }
-
 $nidn = $dosen['nidn'];
-?>
 
-<main class="pc-container">
-  <?php include "../includes/header.php"; ?>
-
-  <div class="pc-content">
-
-    <h3 class="mb-4">Presensi Mahasiswa Bimbingan</h3>
-
-<?php
-/* ======================================================
-   AMBIL PRESENSI MAHASISWA BIMBINGAN DOSEN
-   ====================================================== */
-$q = $conn->prepare("
+/* ===============================
+   AMBIL PRESENSI MAHASISWA BIMBINGAN
+   =============================== */
+$stmt = $conn->prepare("
     SELECT 
         p.id_presensi,
-        p.nim,
-        m.nama,
         p.tanggal,
-        p.status,
+        p.status AS status_presensi,
         p.bukti_foto,
         p.latitude,
         p.longitude,
-        p.validasi
+        p.validasi,
+        p.catatan_dosen,
+        m.nim,
+        m.nama AS nama_mhs
     FROM presensi p
-    JOIN mahasiswa m ON m.nim = p.nim
-    JOIN bimbingan b ON b.nim = p.nim
-    WHERE b.nidn = ?
+    JOIN mahasiswa m ON p.nim = m.nim
+    JOIN kp k ON m.nim = k.nim
+    WHERE 
+        k.nidn = ?
+        AND k.status = 'Berlangsung'
     ORDER BY p.tanggal DESC
 ");
-$q->bind_param("s", $nidn);
-$q->execute();
-$res = $q->get_result();
+$stmt->bind_param("s", $nidn);
+$stmt->execute();
+$result = $stmt->get_result();
 
-if ($res->num_rows === 0):
+/* ===============================
+   HELPER BADGE
+   =============================== */
+function badgePresensi($status)
+{
+    return match ($status) {
+        'Hadir' => ['success', 'Hadir'],
+        'Izin'  => ['warning', 'Izin'],
+        'Alpha' => ['danger', 'Alpha'],
+        default => ['secondary', '-']
+    };
+}
+
+function badgeValidasi($status)
+{
+    return match ($status) {
+        'Approve' => ['success', 'Disetujui'],
+        'Reject'  => ['danger', 'Ditolak'],
+        default   => ['warning', 'Pending']
+    };
+}
+
+/* ===============================
+   LAYOUT
+   =============================== */
+include "../includes/layout_top.php";
+include "../includes/sidebar_dosen.php";
 ?>
 
-    <div class="alert alert-info">
-        Belum ada data presensi mahasiswa bimbingan.
-    </div>
+<main class="pc-container">
+<?php include "../includes/header.php"; ?>
 
+<div class="pc-content">
+
+<h3 class="fw-bold mb-1">Presensi Mahasiswa Bimbingan</h3>
+<p class="text-muted mb-4">
+  Dosen dapat memvalidasi presensi mahasiswa Kerja Praktik.
+</p>
+
+<div class="card shadow-sm border-0">
+<div class="card-body">
+
+<div class="table-responsive">
+<table class="table table-hover align-middle">
+<thead class="table-light">
+<tr>
+    <th>Tanggal</th>
+    <th>NIM</th>
+    <th>Nama</th>
+    <th>Status</th>
+    <th>Bukti</th>
+    <th>Lokasi</th>
+    <th>Validasi</th>
+    <th class="text-center">Aksi</th>
+</tr>
+</thead>
+
+<tbody>
+<?php if ($result->num_rows > 0): ?>
+<?php while ($row = $result->fetch_assoc()): ?>
+<?php 
+[$badgePres, $labelPres] = badgePresensi($row['status_presensi']);
+[$badgeVal, $labelVal]   = badgeValidasi($row['validasi']);
+?>
+
+<tr>
+<td><?= date('d M Y', strtotime($row['tanggal'])) ?></td>
+<td><?= htmlspecialchars($row['nim']) ?></td>
+<td><?= htmlspecialchars($row['nama_mhs']) ?></td>
+
+<td>
+    <span class="badge bg-<?= $badgePres ?>">
+        <?= $labelPres ?>
+    </span>
+</td>
+
+<td>
+<?php if ($row['bukti_foto']): ?>
+    <a href="<?= $asset_prefix ?>uploads/presensi/<?= $row['bukti_foto'] ?>"
+       target="_blank"
+       class="btn btn-sm btn-outline-primary">
+       Lihat
+    </a>
 <?php else: ?>
-
-    <div class="table-responsive">
-      <table class="table table-bordered table-striped align-middle">
-        <thead class="table-light">
-          <tr>
-            <th>NIM / Nama</th>
-            <th>Tanggal</th>
-            <th>Status</th>
-            <th>Foto</th>
-            <th>Lokasi</th>
-            <th>Validasi</th>
-          </tr>
-        </thead>
-        <tbody>
-
-<?php while ($r = $res->fetch_assoc()): ?>
-          <tr>
-            <td>
-              <?= htmlspecialchars($r['nim']) ?><br>
-              <small><?= htmlspecialchars($r['nama']) ?></small>
-            </td>
-
-            <td><?= date('d M Y', strtotime($r['tanggal'])) ?></td>
-
-            <td>
-              <span class="badge bg-info">
-                <?= htmlspecialchars($r['status']) ?>
-              </span>
-            </td>
-
-            <td>
-<?php if (!empty($r['bukti_foto'])): ?>
-              <img src="../uploads/presensi/<?= htmlspecialchars($r['bukti_foto']) ?>"
-                   width="80" class="img-thumbnail">
-<?php else: ?>
-              -
+    -
 <?php endif; ?>
-            </td>
+</td>
 
-            <td>
-              <?= htmlspecialchars($r['latitude']) ?><br>
-              <?= htmlspecialchars($r['longitude']) ?>
-            </td>
-
-            <td>
-<?php if ($r['validasi'] === 'Pending'): ?>
-              <a href="validasi_presensi.php?id=<?= (int)$r['id_presensi'] ?>&aksi=approve"
-                 class="btn btn-success btn-sm"
-                 onclick="return confirm('Setujui presensi ini?')">
-                 Approve
-              </a>
-
-              <a href="validasi_presensi.php?id=<?= (int)$r['id_presensi'] ?>&aksi=reject"
-                 class="btn btn-danger btn-sm"
-                 onclick="return confirm('Tolak presensi ini?')">
-                 Reject
-              </a>
-<?php elseif ($r['validasi'] === 'Approve'): ?>
-              <span class="badge bg-success">Approved</span>
+<td>
+<?php if ($row['latitude'] && $row['longitude']): ?>
+    <a href="https://maps.google.com/?q=<?= $row['latitude'] ?>,<?= $row['longitude'] ?>"
+       target="_blank">
+       Maps
+    </a>
 <?php else: ?>
-              <span class="badge bg-danger">Rejected</span>
+    -
 <?php endif; ?>
-            </td>
-          </tr>
+</td>
+
+<td>
+    <span class="badge bg-<?= $badgeVal ?>">
+        <?= $labelVal ?>
+    </span>
+</td>
+
+<td class="text-center">
+<?php if ($row['validasi'] === 'Pending'): ?>
+<form method="post" action="validasi_presensi.php" class="d-inline">
+    <input type="hidden" name="id_presensi" value="<?= $row['id_presensi'] ?>">
+    <input type="hidden" name="aksi" value="approve">
+    <button class="btn btn-sm btn-success">ACC</button>
+</form>
+
+<form method="post" action="validasi_presensi.php" class="d-inline">
+    <input type="hidden" name="id_presensi" value="<?= $row['id_presensi'] ?>">
+    <input type="hidden" name="aksi" value="reject">
+    <button class="btn btn-sm btn-danger">Tolak</button>
+</form>
+<?php else: ?>
+    —
+<?php endif; ?>
+</td>
+</tr>
+
 <?php endwhile; ?>
-
-        </tbody>
-      </table>
-    </div>
-
+<?php else: ?>
+<tr>
+<td colspan="8" class="text-center text-muted py-4">
+    Belum ada data presensi mahasiswa bimbingan.
+</td>
+</tr>
 <?php endif; ?>
+</tbody>
+</table>
+</div>
 
-  </div>
+</div>
+</div>
+
+</div>
 </main>
 
 <?php include "../includes/layout_bottom.php"; ?>

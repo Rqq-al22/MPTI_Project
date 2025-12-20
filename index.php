@@ -309,7 +309,7 @@
         <li class="nav-item"><a class="nav-link fw-semibold" href="#alur">Alur KP</a></li>
         <li class="nav-item"><a class="nav-link fw-semibold" href="#tim">Tim Pengembang</a></li>
         <li class="nav-item"><a class="nav-link fw-semibold" href="#tentang">Tentang Sistem</a></li>
-        <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+        
           <a class="btn btn-outline-primary me-2" href="auth/login_form.php">
             <i class="bi bi-box-arrow-in-right me-1"></i>Login
           </a>

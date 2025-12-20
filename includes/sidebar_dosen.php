@@ -50,14 +50,6 @@ $asset_prefix = $asset_prefix ?? "../";
             <span class="pc-mtext">Presensi Mahasiswa</span>
           </a>
         </li>
-
-        <li class="pc-item <?= ($current_page == 'validasi_presensi.php') ? 'active' : '' ?>">
-          <a href="<?= $asset_prefix ?>dosen/validasi_presensi.php" class="pc-link">
-            <span class="pc-micon"><i class="ti ti-checklist"></i></span>
-            <span class="pc-mtext">Validasi Presensi</span>
-          </a>
-        </li>
-
         <!-- PENILAIAN -->
         <li class="pc-item pc-caption">
           <label>Penilaian</label>
@@ -77,8 +69,8 @@ $asset_prefix = $asset_prefix ?? "../";
           </a>
         </li>
 
-        <li class="pc-item <?= ($current_page == 'penilaian.php') ? 'active' : '' ?>">
-          <a href="<?= $asset_prefix ?>dosen/penilaian.php" class="pc-link">
+        <li class="pc-item <?= ($current_page == 'rekap_penilaian.php') ? 'active' : '' ?>">
+          <a href="<?= $asset_prefix ?>dosen/rekap_penilaian.php" class="pc-link">
             <span class="pc-micon"><i class="ti ti-clipboard-list"></i></span>
             <span class="pc-mtext">Rekap Penilaian</span>
           </a>

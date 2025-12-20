@@ -1,114 +1,199 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
 <head>
-    <title>Login | Sistem Informasi Rekap KP</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Login | Sistem Informasi Rekap KP</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- FONT -->
-    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,900&display=swap" rel="stylesheet">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
 
-    <!-- ICON -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- Bootstrap -->
+  <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../assets/css/bootstrap-icons.css" rel="stylesheet">
 
-    <!-- CSS LOGIN -->
-    <link rel="stylesheet" href="../assets/css/login.css">
+  <style>
+    :root{
+      --tosca:#14b8a6;
+      --tosca-dark:#0f766e;
+      --bg-dark:#134e4a;
+      --text-dark:#1f2937;
+      --text-muted:#6b7280;
+      --border:#e5e7eb;
+    }
+
+    body{
+      font-family:'Open Sans',sans-serif;
+      min-height:100vh;
+      background:linear-gradient(135deg,#EEEEEE,#EEEEEE);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .login-box{
+      max-width:960px;
+      width:100%;
+      background:#fff;
+      border-radius:22px;
+      overflow:hidden;
+      box-shadow:0 30px 70px rgba(0,0,0,.3);
+    }
+
+    /* LEFT PANEL */
+    .left-panel{
+      background:linear-gradient(135deg,var(--tosca),var(--tosca-dark));
+      color:#fff;
+      padding:40px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+    }
+
+    .left-panel h2{
+      font-family:'Montserrat',sans-serif;
+      font-weight:800;
+      margin-bottom:14px;
+    }
+
+    .role-list{
+      margin-top:20px;
+      text-align:left;
+      font-size:.95rem;
+    }
+
+    .role-list div{
+      margin-bottom:8px;
+    }
+
+    /* RIGHT PANEL */
+    .right-panel{
+      padding:45px;
+      background:#ffffff;
+    }
+
+    .right-panel h3{
+      font-family:'Montserrat',sans-serif;
+      font-weight:800;
+      text-align:center;
+      margin-bottom:6px;
+    }
+
+    .right-panel .sub{
+      text-align:center;
+      color:var(--text-muted);
+      margin-bottom:30px;
+    }
+
+    .form-label{
+      font-weight:600;
+      color:var(--text-dark);
+    }
+
+    .form-control{
+      border-radius:12px;
+      padding:12px 14px;
+      border:1px solid var(--border);
+    }
+
+    .form-control:focus{
+      border-color:var(--tosca);
+      box-shadow:0 0 0 .2rem rgba(20,184,166,.15);
+    }
+
+    .btn-login{
+      background:linear-gradient(135deg,var(--tosca),var(--tosca-dark));
+      border:none;
+      color:#fff;
+      font-weight:700;
+      border-radius:14px;
+      padding:12px;
+      box-shadow:0 14px 35px rgba(20,184,166,.45);
+    }
+
+    .btn-login:hover{
+      filter:brightness(.95);
+      color:#fff;
+    }
+
+    .note{
+      margin-top:18px;
+      font-size:.9rem;
+      color:var(--text-muted);
+      text-align:center;
+    }
+
+    @media(max-width:768px){
+      .left-panel{ display:none; }
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="login-container">
-<section class="ftco-section">
-<div class="container">
+<div class="login-box">
+  <div class="row g-0">
 
-    <!-- JUDUL -->
-    <div class="row justify-content-center">
-        <div class="col-md-6 text-center mb-5">
-            <h2 class="heading-section">Sistem Informasi Rekap Kerja Praktik</h2>
-            <p class="text-muted">Silakan login sesuai peran Anda</p>
+    <!-- PANEL KIRI -->
+    <div class="col-md-5 left-panel">
+      <div>
+        <h2>Sistem Informasi<br>Rekap KP</h2>
+        <p class="mb-3">Login sesuai peran Anda</p>
+
+        <div class="role-list">
+          <div><i class="bi bi-mortarboard me-2"></i>Mahasiswa → <b>NIM</b></div>
+          <div><i class="bi bi-person-badge me-2"></i>Dosen → <b>NIDN</b></div>
+          <div><i class="bi bi-gear me-2"></i>Admin → <b>Username</b></div>
         </div>
+      </div>
     </div>
 
-    <div class="row justify-content-center">
-    <div class="col-md-12 col-lg-10">
-    <div class="wrap d-md-flex">
+    <!-- PANEL KANAN -->
+    <div class="col-md-7 right-panel">
+      <h3>Login</h3>
+      <div class="sub">Silakan masuk ke sistem</div>
 
-        <!-- BAGIAN KANAN -->
-        <div class="text-wrap p-4 p-lg-5 text-center d-flex align-items-center order-md-last">
-            <div class="text w-100">
-                <h2>Welcome</h2>
-                <p>
-                    Mahasiswa login menggunakan <b>NIM</b><br>
-                    Dosen login menggunakan <b>NIDN</b><br>
-                    Admin login menggunakan <b>Username</b>
-                </p>
-            </div>
+      <form action="../auth/login_process.php" method="POST">
+
+        <div class="mb-3">
+          <label class="form-label">Login Sebagai</label>
+          <select name="role" class="form-control" required>
+            <option value="">-- Pilih Role --</option>
+            <option value="mahasiswa">Mahasiswa</option>
+            <option value="dosen">Dosen</option>
+            <option value="admin">Admin</option>
+          </select>
         </div>
 
-        <!-- FORM LOGIN -->
-        <div class="login-wrap p-4 p-lg-5">
-            <div class="d-flex">
-                <div class="w-100">
-                    <h3 class="mb-4">Sign In</h3>
-                </div>
-            </div>
-
-            <form action="../auth/login_process.php" method="POST" class="signin-form">
-
-                <!-- PILIH ROLE -->
-                <div class="form-group mb-3">
-                    <label class="label">Login Sebagai</label>
-                    <select name="role" class="form-control" required>
-                        <option value="">-- Pilih Role --</option>
-                        <option value="mahasiswa">Mahasiswa</option>
-                        <option value="dosen">Dosen</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                </div>
-
-                <!-- IDENTITAS -->
-                <div class="form-group mb-3">
-                    <label class="label">NIM / NIDN / Username</label>
-                    <input type="text"
-                           name="identity"
-                           class="form-control"
-                           placeholder="Masukkan NIM / NIDN / Username"
-                           required>
-                </div>
-
-                <!-- PASSWORD -->
-                <div class="form-group mb-3">
-                    <label class="label">Password</label>
-                    <input type="password"
-                           name="password"
-                           class="form-control"
-                           placeholder="Password"
-                           required>
-                </div>
-
-                <!-- SUBMIT -->
-                <div class="form-group">
-                    <button type="submit" class="form-control btn btn-primary submit px-3">
-                        <i class="fa fa-sign-in"></i> Log In
-                    </button>
-                </div>
-
-            </form>
-
+        <div class="mb-3">
+          <label class="form-label">NIM / NIDN / Username</label>
+          <input type="text" name="identity" class="form-control" required>
         </div>
-    </div>
-    </div>
+
+        <div class="mb-4">
+          <label class="form-label">Password</label>
+          <input type="password" name="password" class="form-control" required>
+        </div>
+
+        <div class="d-grid">
+          <button type="submit" class="btn btn-login">
+            <i class="bi bi-box-arrow-in-right me-1"></i> Login
+          </button>
+        </div>
+
+        <div class="note">
+          Belum punya akun? Hubungi admin prodi.
+        </div>
+
+      </form>
     </div>
 
-</div>
-</section>
+  </div>
 </div>
 
-<!-- JS -->
-<script src="/MPTI/assets/js/jquery.min.js"></script>
-<script src="/MPTI/assets/js/popper.js"></script>
-<script src="/MPTI/assets/js/bootstrap.min.js"></script>
-<script src="/MPTI/assets/js/main.js"></script>
-
+<script src="../assets/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

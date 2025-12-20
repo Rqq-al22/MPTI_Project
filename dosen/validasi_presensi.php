@@ -2,17 +2,20 @@
 require_once "../auth/auth_check.php";
 require_role('dosen');
 require_once "../config/db.php";
-log_activity($conn, "Memvalidasi presensi mahasiswa bimbingan");
 
-
-$id_presensi = (int)($_GET['id'] ?? 0);
-$aksi = $_GET['aksi'] ?? '';
-
-if (!$id_presensi || !in_array($aksi, ['approve', 'reject'])) {
-    die("Aksi tidak valid");
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header("Location: presensi_mhs.php");
+    exit;
 }
 
-$status = ($aksi === 'approve') ? 'Approve' : 'Reject';
+$id_presensi = intval($_POST['id_presensi']);
+$aksi = $_POST['aksi'];
+
+$status = match ($aksi) {
+    'approve' => 'Approve',
+    'reject'  => 'Reject',
+    default   => 'Pending'
+};
 
 $stmt = $conn->prepare("
     UPDATE presensi

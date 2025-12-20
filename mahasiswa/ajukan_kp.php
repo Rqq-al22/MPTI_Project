@@ -3,173 +3,183 @@ require_once "../auth/auth_check.php";
 require_role('mahasiswa');
 require_once "../config/db.php";
 
-$current_page  = 'ajukan_kp.php';
-$page_title    = "Ajukan Kerja Praktik";
+/* ===============================
+   KONFIGURASI HALAMAN
+   =============================== */
+$current_page  = 'data_kp.php';
+$page_title    = "Data Kerja Praktik";
 $asset_prefix  = "../";
 $logout_prefix = "../";
 
+/* ===============================
+   LAYOUT
+   =============================== */
 include "../includes/layout_top.php";
-include "../includes/sidebar.php";
+include "../includes/sidebar_mahasiswa.php";
 include "../includes/header.php";
 
+/* ===============================
+   SESSION MAHASISWA
+   =============================== */
 $nim = $_SESSION['nim'] ?? null;
-$error = '';
-$sukses = '';
-
 if (!$nim) {
-    echo "<div class='alert alert-danger'>NIM tidak ditemukan dalam sesi login.</div>";
+    echo '<div class="alert alert-danger">NIM tidak ditemukan di sesi.</div>';
     include "../includes/layout_bottom.php";
     exit;
 }
 
 /* ===============================
-   PROSES SUBMIT
-================================ */
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+   AMBIL KP AKTIF (VALID)
+   =============================== */
+$stmt = $conn->prepare("
+    SELECT
+        k.id_kp,
+        k.nama_instansi,
+        k.alamat_instansi,
+        k.kontak_instansi,
+        k.pembimbing_instansi,
+        k.posisi,
+        k.nidn,
+        k.tgl_mulai,
+        k.tgl_selesai,
+        k.status,
+        k.surat_diterima_file,
+        k.created_at
+    FROM kp k
+    WHERE k.nim = ?
+      AND k.status IN ('Pengajuan','Diterima','Berlangsung')
+      AND k.nama_instansi IS NOT NULL
+    ORDER BY 
+      FIELD(k.status,'Berlangsung','Diterima','Pengajuan'),
+      k.created_at DESC
+    LIMIT 1
+");
+$stmt->bind_param("s", $nim);
+$stmt->execute();
+$data = $stmt->get_result()->fetch_assoc();
+$stmt->close();
 
-    // Ambil & rapikan input
-    $nama_instansi   = trim($_POST['nama_instansi'] ?? '');
-    $alamat_instansi = trim($_POST['alamat_instansi'] ?? '');
-    $kontak_instansi = trim($_POST['kontak_instansi'] ?? '');
-    $posisi          = trim($_POST['posisi'] ?? '');
-    $pembimbing      = trim($_POST['pembimbing_instansi'] ?? '');
-    $tgl_mulai       = $_POST['tgl_mulai'] ?? '';
-    $tgl_selesai     = $_POST['tgl_selesai'] ?? '';
+/* ===============================
+   HELPER
+   =============================== */
+function safe($v) {
+    return ($v !== null && $v !== '') ? htmlspecialchars($v) : '-';
+}
 
-    // Validasi wajib
-    $fields = [
-        'Nama Instansi'   => $nama_instansi,
-        'Alamat Instansi' => $alamat_instansi,
-        'Kontak Instansi' => $kontak_instansi,
-        'Posisi KP'       => $posisi,
-        'Tanggal Mulai'   => $tgl_mulai,
-        'Tanggal Selesai' => $tgl_selesai
-    ];
-
-    foreach ($fields as $label => $value) {
-        if ($value === '') {
-            $error = "$label wajib diisi.";
-            break;
-        }
-    }
-
-    if ($error === '' && $tgl_mulai > $tgl_selesai) {
-        $error = "Tanggal mulai tidak boleh lebih besar dari tanggal selesai.";
-    }
-
-    /* ===============================
-       UPLOAD SURAT (OPSIONAL)
-    ================================ */
-    $surat_file = null;
-    if ($error === '' && !empty($_FILES['surat_diterima_file']['name'])) {
-
-        $dir = "../uploads/surat/";
-        if (!is_dir($dir)) mkdir($dir, 0777, true);
-
-        $ext = pathinfo($_FILES['surat_diterima_file']['name'], PATHINFO_EXTENSION);
-        $surat_file = "surat_{$nim}_" . time() . "." . $ext;
-
-        move_uploaded_file(
-            $_FILES['surat_diterima_file']['tmp_name'],
-            $dir . $surat_file
-        );
-    }
-
-    /* ===============================
-       SIMPAN DATABASE
-    ================================ */
-    if ($error === '') {
-
-        $stmt = $conn->prepare(
-            "INSERT INTO kp
-            (nim, nama_instansi, alamat_instansi, kontak_instansi, posisi, pembimbing_instansi,
-             tgl_mulai, tgl_selesai, status, surat_diterima_file)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pengajuan', ?)"
-        );
-
-        $stmt->bind_param(
-            "sssssssss",
-            $nim,
-            $nama_instansi,
-            $alamat_instansi,
-            $kontak_instansi,
-            $posisi,
-            $pembimbing,
-            $tgl_mulai,
-            $tgl_selesai,
-            $surat_file
-        );
-
-        if ($stmt->execute()) {
-            $sukses = "Pengajuan Kerja Praktik berhasil dikirim.";
-        } else {
-            $error = "Gagal menyimpan data KP.";
-        }
-    }
+function tgl($d) {
+    return $d ? date('d M Y', strtotime($d)) : '-';
 }
 ?>
 
 <main class="pc-container">
 <div class="pc-content">
 
-<h3 class="mb-4">Ajukan Kerja Praktik</h3>
+<h3 class="mb-4">Data Kerja Praktik</h3>
 
-<?php if ($error): ?>
-<div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
-<?php endif; ?>
+<?php if (!$data): ?>
 
-<?php if ($sukses): ?>
-<div class="alert alert-success"><?= $sukses ?></div>
-<a href="data_kp.php" class="btn btn-primary mt-3">Lihat Data KP</a>
+<div class="alert alert-warning">
+    <strong>Belum ada Kerja Praktik aktif.</strong><br>
+    Silakan ajukan Kerja Praktik terlebih dahulu.
+    <br>
+    <a href="ajukan_kp.php" class="btn btn-primary mt-3">
+        Ajukan Kerja Praktik
+    </a>
+</div>
 
 <?php else: ?>
 
-<form method="POST" enctype="multipart/form-data" class="card p-4">
-
-<div class="mb-3">
-    <label>Nama Instansi</label>
-    <input type="text" name="nama_instansi" class="form-control" required>
+<?php if ($data['status'] === 'Berlangsung'): ?>
+<div class="alert alert-info">
+    <strong>KP Anda sedang Berlangsung.</strong><br>
+    Data KP dikunci untuk menjaga konsistensi.
 </div>
+<?php endif; ?>
 
-<div class="mb-3">
-    <label>Alamat Instansi</label>
-    <textarea name="alamat_instansi" class="form-control" rows="2" required></textarea>
+<table class="table table-bordered align-middle">
+
+<tr>
+    <th width="30%">Instansi</th>
+    <td><?= safe($data['nama_instansi']) ?></td>
+</tr>
+
+<tr>
+    <th>Alamat Instansi</th>
+    <td><?= safe($data['alamat_instansi']) ?></td>
+</tr>
+
+<tr>
+    <th>Kontak Instansi</th>
+    <td><?= safe($data['kontak_instansi']) ?></td>
+</tr>
+
+<tr>
+    <th>Pembimbing / Mentor Instansi</th>
+    <td><?= safe($data['pembimbing_instansi']) ?></td>
+</tr>
+
+<tr>
+    <th>Posisi KP</th>
+    <td><?= safe($data['posisi']) ?></td>
+</tr>
+
+<tr>
+    <th>Dosen Pembimbing (NIDN)</th>
+    <td><?= safe($data['nidn']) ?></td>
+</tr>
+
+<tr>
+    <th>Periode</th>
+    <td>
+        <?= tgl($data['tgl_mulai']) ?> s/d <?= tgl($data['tgl_selesai']) ?>
+    </td>
+</tr>
+
+<tr>
+    <th>Status</th>
+    <td>
+        <?php
+        $badge = match ($data['status']) {
+            'Pengajuan'   => 'secondary',
+            'Diterima'    => 'info',
+            'Berlangsung' => 'primary',
+            'Selesai'     => 'success',
+            default       => 'secondary'
+        };
+        ?>
+        <span class="badge bg-<?= $badge ?>">
+            <?= safe($data['status']) ?>
+        </span>
+    </td>
+</tr>
+
+<?php if (!empty($data['surat_diterima_file'])): ?>
+<tr>
+    <th>Surat Diterima</th>
+    <td>
+        <a href="../uploads/surat/<?= htmlspecialchars($data['surat_diterima_file']) ?>"
+           target="_blank"
+           class="btn btn-sm btn-success">
+            Lihat Surat
+        </a>
+    </td>
+</tr>
+<?php endif; ?>
+
+</table>
+
+<div class="mt-4">
+<?php if ($data['status'] !== 'Berlangsung'): ?>
+    <a href="ajukan_kp.php?edit=1&id_kp=<?= (int)$data['id_kp'] ?>"
+       class="btn btn-warning">
+        Edit / Ajukan Ulang KP
+    </a>
+<?php else: ?>
+    <button class="btn btn-secondary" disabled>
+        KP Sedang Berlangsung (Edit Dikunci)
+    </button>
+<?php endif; ?>
 </div>
-
-<div class="mb-3">
-    <label>Kontak Instansi (HP / Email)</label>
-    <input type="text" name="kontak_instansi" class="form-control" required>
-</div>
-
-<div class="mb-3">
-    <label>Posisi Kerja Praktik</label>
-    <input type="text" name="posisi" class="form-control" required>
-</div>
-
-<div class="mb-3">
-    <label>Pembimbing Instansi</label>
-    <input type="text" name="pembimbing_instansi" class="form-control">
-</div>
-
-<div class="row">
-    <div class="col-md-6 mb-3">
-        <label>Tanggal Mulai</label>
-        <input type="date" name="tgl_mulai" class="form-control" required>
-    </div>
-    <div class="col-md-6 mb-3">
-        <label>Tanggal Selesai</label>
-        <input type="date" name="tgl_selesai" class="form-control" required>
-    </div>
-</div>
-
-<div class="mb-3">
-    <label>Surat Diterima (PDF/JPG)</label>
-    <input type="file" name="surat_diterima_file" class="form-control">
-</div>
-
-<button class="btn btn-primary">Kirim Pengajuan</button>
-
-</form>
 
 <?php endif; ?>
 

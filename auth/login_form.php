@@ -18,7 +18,7 @@
     :root{
       --tosca:#14b8a6;
       --tosca-dark:#0f766e;
-      --bg-dark:#134e4a;
+      --bg:#f3f4f6;
       --text-dark:#1f2937;
       --text-muted:#6b7280;
       --border:#e5e7eb;
@@ -27,26 +27,68 @@
     body{
       font-family:'Open Sans',sans-serif;
       min-height:100vh;
-      background:linear-gradient(135deg,#EEEEEE,#EEEEEE);
+      background:linear-gradient(135deg,#eeeeee,#f5f5f5);
       display:flex;
       align-items:center;
       justify-content:center;
     }
 
+    /* ===============================
+       TOMBOL KEMBALI KE BERANDA
+       =============================== */
+    .btn-back-home{
+      position:fixed;
+      top:24px;
+      left:24px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 18px;
+      border-radius:999px;
+      text-decoration:none;
+      font-weight:600;
+      font-size:.95rem;
+
+      color:var(--tosca-dark);
+      background:rgba(255,255,255,.85);
+      backdrop-filter:blur(8px);
+
+      border:1px solid rgba(20,184,166,.25);
+      box-shadow:
+        0 10px 30px rgba(0,0,0,.12),
+        inset 0 0 0 1px rgba(255,255,255,.4);
+
+      transition:all .25s ease;
+      z-index:999;
+    }
+
+    .btn-back-home i{
+      font-size:1.1rem;
+    }
+
+    .btn-back-home:hover{
+      background:linear-gradient(135deg,var(--tosca),var(--tosca-dark));
+      color:#fff;
+      transform:translateY(-2px);
+      box-shadow:0 14px 35px rgba(20,184,166,.45);
+    }
+
+    /* ===============================
+       LOGIN BOX
+       =============================== */
     .login-box{
       max-width:960px;
       width:100%;
       background:#fff;
       border-radius:22px;
       overflow:hidden;
-      box-shadow:0 30px 70px rgba(0,0,0,.3);
+      box-shadow:0 30px 70px rgba(0,0,0,.25);
     }
 
-    /* LEFT PANEL */
     .left-panel{
       background:linear-gradient(135deg,var(--tosca),var(--tosca-dark));
       color:#fff;
-      padding:40px;
+      padding:45px;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -60,19 +102,18 @@
     }
 
     .role-list{
-      margin-top:20px;
+      margin-top:22px;
       text-align:left;
       font-size:.95rem;
     }
 
     .role-list div{
-      margin-bottom:8px;
+      margin-bottom:10px;
     }
 
-    /* RIGHT PANEL */
     .right-panel{
-      padding:45px;
-      background:#ffffff;
+      padding:50px;
+      background:#fff;
     }
 
     .right-panel h3{
@@ -85,7 +126,7 @@
     .right-panel .sub{
       text-align:center;
       color:var(--text-muted);
-      margin-bottom:30px;
+      margin-bottom:32px;
     }
 
     .form-label{
@@ -94,8 +135,8 @@
     }
 
     .form-control{
-      border-radius:12px;
-      padding:12px 14px;
+      border-radius:14px;
+      padding:12px 16px;
       border:1px solid var(--border);
     }
 
@@ -110,7 +151,7 @@
       color:#fff;
       font-weight:700;
       border-radius:14px;
-      padding:12px;
+      padding:13px;
       box-shadow:0 14px 35px rgba(20,184,166,.45);
     }
 
@@ -128,11 +169,18 @@
 
     @media(max-width:768px){
       .left-panel{ display:none; }
+      .right-panel{ padding:36px; }
     }
   </style>
 </head>
 
 <body>
+
+<!-- TOMBOL KEMBALI -->
+<a href="../index.php" class="btn-back-home">
+  <i class="bi bi-arrow-left"></i>
+  <span>Kembali ke Beranda</span>
+</a>
 
 <div class="login-box">
   <div class="row g-0">

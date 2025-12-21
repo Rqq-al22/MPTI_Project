@@ -12,6 +12,9 @@ include "../includes/layout_top.php";
 include "../includes/sidebar_mahasiswa.php";
 include "../includes/header.php";
 
+/* ===============================
+   VALIDASI SESSION
+   =============================== */
 $nim = $_SESSION['nim'] ?? null;
 if (!$nim) {
     echo "<div class='alert alert-danger'>Session mahasiswa tidak valid.</div>";
@@ -67,7 +70,9 @@ if (isset($_GET['edit']) && $kp_aktif) {
   </div>
 <?php endif; ?>
 
-<form method="POST" action="ajukan_kp_process.php">
+<form method="POST"
+      action="ajukan_kp_process.php"
+      enctype="multipart/form-data">
 
   <input type="hidden" name="mode" value="<?= $mode ?>">
   <input type="hidden" name="id_kp" value="<?= $kp_aktif['id_kp'] ?? '' ?>">
@@ -75,8 +80,7 @@ if (isset($_GET['edit']) && $kp_aktif) {
   <div class="mb-3">
     <label>Nama Instansi</label>
     <input type="text" name="nama_instansi" class="form-control"
-           value="<?= htmlspecialchars($kp_aktif['nama_instansi'] ?? '') ?>"
-           required>
+           value="<?= htmlspecialchars($kp_aktif['nama_instansi'] ?? '') ?>" required>
   </div>
 
   <div class="mb-3">
@@ -101,6 +105,46 @@ if (isset($_GET['edit']) && $kp_aktif) {
     <label>Pembimbing / Mentor Instansi</label>
     <input type="text" name="pembimbing_instansi" class="form-control"
            value="<?= htmlspecialchars($kp_aktif['pembimbing_instansi'] ?? '') ?>">
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label>Tanggal Mulai KP</label>
+      <input type="date" name="tgl_mulai" class="form-control"
+             value="<?= $kp_aktif['tgl_mulai'] ?? '' ?>" required>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label>Tanggal Selesai KP</label>
+      <input type="date" name="tgl_selesai" class="form-control"
+             value="<?= $kp_aktif['tgl_selesai'] ?? '' ?>" required>
+    </div>
+  </div>
+
+  <!-- 🔴 INTI PERBAIKAN: UPLOAD SURAT PENERIMAAN -->
+  <div class="mb-3">
+    <label>
+      Surat Penerimaan KP dari Instansi
+      <span class="text-danger">*</span>
+    </label>
+    <input type="file"
+           name="surat_diterima"
+           class="form-control"
+           accept=".pdf,.jpg,.jpeg,.png"
+           <?= $mode === 'create' ? 'required' : '' ?>>
+
+    <small class="text-muted">
+      Surat resmi dari instansi yang menyatakan Anda diterima KP
+    </small>
+
+    <?php if (!empty($kp_aktif['surat_diterima_file'])): ?>
+      <div class="mt-2">
+        <a href="../uploads/surat/<?= htmlspecialchars($kp_aktif['surat_diterima_file']) ?>"
+           target="_blank"
+           class="btn btn-sm btn-outline-primary">
+          Lihat Surat yang Diunggah
+        </a>
+      </div>
+    <?php endif; ?>
   </div>
 
   <button class="btn btn-primary">

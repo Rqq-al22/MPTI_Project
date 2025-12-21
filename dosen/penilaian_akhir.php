@@ -7,23 +7,27 @@ require_once "../config/db.php";
    KONFIGURASI
    =============================== */
 $current_page  = 'penilaian_akhir.php';
-$page_title    = "Penilaian Akhir";
+$page_title    = "Penilaian Akhir Kerja Praktik";
 $asset_prefix  = "../";
 $logout_prefix = "../";
 
 /* ===============================
-   AMBIL NIDN DOSEN LOGIN
+   AMBIL DATA DOSEN LOGIN
    =============================== */
-$user_id = $_SESSION['user_id'];
+$user_id = $_SESSION['user_id'] ?? null;
+if (!$user_id) die("Session dosen tidak valid.");
+
 $stmt = $conn->prepare("SELECT nidn FROM dosen WHERE id_user = ? LIMIT 1");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $dosen = $stmt->get_result()->fetch_assoc();
-if (!$dosen) die("Data dosen tidak ditemukan");
+$stmt->close();
+
+if (!$dosen) die("Data dosen tidak ditemukan.");
 $nidn = $dosen['nidn'];
 
 /* ===============================
-   PROSES SIMPAN / UPDATE
+   PROSES SIMPAN / UPDATE NILAI
    =============================== */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -34,17 +38,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $komentar         = trim($_POST['komentar'] ?? '');
 
     foreach ([$nilai_presensi, $nilai_laporan, $nilai_presentasi] as $n) {
-        if ($n < 0 || $n > 100) die("Nilai tidak valid");
+        if ($n < 0 || $n > 100) {
+            die("Nilai harus antara 0–100");
+        }
     }
 
-    // HITUNG NILAI AKHIR (BOBOT)
+    // HITUNG NILAI AKHIR (BOBOT AKADEMIK)
     $nilai_akhir = round(
         (0.2 * $nilai_presensi) +
         (0.4 * $nilai_laporan) +
         (0.4 * $nilai_presentasi)
     );
 
-    // CEK SUDAH ADA / BELUM
+    // CEK APAKAH SUDAH DINILAI
     $cek = $conn->prepare("
         SELECT id_penilaian_akhir
         FROM penilaian_akhir
@@ -53,9 +59,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ");
     $cek->bind_param("i", $id_kp);
     $cek->execute();
-    $ada = $cek->get_result()->fetch_assoc();
+    $existing = $cek->get_result()->fetch_assoc();
+    $cek->close();
 
-    if ($ada) {
+    if ($existing) {
         // UPDATE
         $stmt = $conn->prepare("
             UPDATE penilaian_akhir
@@ -77,6 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id_kp
         );
         $stmt->execute();
+        $stmt->close();
     } else {
         // INSERT
         $stmt = $conn->prepare("
@@ -95,6 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $komentar
         );
         $stmt->execute();
+        $stmt->close();
     }
 
     header("Location: penilaian_akhir.php?success=1");
@@ -102,25 +111,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 /* ===============================
-   AMBIL KP MAHASISWA BIMBINGAN
+   AMBIL MAHASISWA KP BIMBINGAN
    =============================== */
-$kp = $conn->prepare("
+$stmt = $conn->prepare("
     SELECT
         k.id_kp,
         m.nim,
         m.nama,
+        k.nama_instansi,
+        k.status,
         pa.nilai_akhir
     FROM kp k
     JOIN mahasiswa m ON k.nim = m.nim
     LEFT JOIN penilaian_akhir pa ON pa.id_kp = k.id_kp
     WHERE
         k.nidn = ?
-        AND k.status = 'Selesai'
-    ORDER BY m.nama
+        AND k.status IN ('Berlangsung','Selesai')
+    ORDER BY m.nama ASC
 ");
-$kp->bind_param("s", $nidn);
-$kp->execute();
-$kp_list = $kp->get_result();
+$stmt->bind_param("s", $nidn);
+$stmt->execute();
+$kp_list = $stmt->get_result();
+$stmt->close();
 
 /* ===============================
    LAYOUT
@@ -136,56 +148,62 @@ include "../includes/sidebar_dosen.php";
 
 <h3 class="fw-bold mb-2">Penilaian Akhir Kerja Praktik</h3>
 <p class="text-muted mb-4">
-  Penilaian akhir mahasiswa Kerja Praktik (Presensi, Laporan, Presentasi).
+  Pilih mahasiswa Kerja Praktik bimbingan Anda berdasarkan ID KP.
 </p>
 
-<!-- FORM -->
-<div class="card mb-4">
+<?php if (isset($_GET['success'])): ?>
+  <div class="alert alert-success">
+    Penilaian akhir berhasil disimpan.
+  </div>
+<?php endif; ?>
+
+<div class="card shadow-sm border-0">
 <div class="card-body">
+
 <form method="POST">
 
-<div class="row g-3">
-
-<div class="col-md-6">
-  <label class="form-label">Mahasiswa KP</label>
+<div class="mb-3">
+  <label class="form-label">Mahasiswa Bimbingan (ID KP)</label>
   <select name="id_kp" class="form-select" required>
-    <option value="">-- Pilih Mahasiswa --</option>
+    <option value="">-- Pilih Mahasiswa KP --</option>
     <?php while ($m = $kp_list->fetch_assoc()): ?>
       <option value="<?= $m['id_kp'] ?>">
-        <?= htmlspecialchars($m['nama']) ?> (<?= $m['nim'] ?>)
-        <?= $m['nilai_akhir'] !== null ? '✔' : '' ?>
+        KP-<?= $m['id_kp'] ?> | <?= htmlspecialchars($m['nama']) ?>
+        (<?= $m['nim'] ?>) – <?= htmlspecialchars($m['nama_instansi']) ?>
+        | <?= $m['status'] ?>
+        <?= $m['nilai_akhir'] !== null ? ' | Sudah Dinilai' : '' ?>
       </option>
     <?php endwhile; ?>
   </select>
 </div>
 
-<div class="col-md-2">
-  <label class="form-label">Presensi</label>
-  <input type="number" name="nilai_presensi" class="form-control" min="0" max="100" required>
+<div class="row g-3">
+  <div class="col-md-4">
+    <label class="form-label">Nilai Presensi</label>
+    <input type="number" name="nilai_presensi" class="form-control" min="0" max="100" required>
+  </div>
+  <div class="col-md-4">
+    <label class="form-label">Nilai Laporan</label>
+    <input type="number" name="nilai_laporan" class="form-control" min="0" max="100" required>
+  </div>
+  <div class="col-md-4">
+    <label class="form-label">Nilai Presentasi</label>
+    <input type="number" name="nilai_presentasi" class="form-control" min="0" max="100" required>
+  </div>
 </div>
 
-<div class="col-md-2">
-  <label class="form-label">Laporan</label>
-  <input type="number" name="nilai_laporan" class="form-control" min="0" max="100" required>
+<div class="mt-3">
+  <label class="form-label">Komentar Dosen</label>
+  <textarea name="komentar" class="form-control" rows="3"
+            placeholder="Catatan evaluasi akhir mahasiswa"></textarea>
 </div>
 
-<div class="col-md-2">
-  <label class="form-label">Presentasi</label>
-  <input type="number" name="nilai_presentasi" class="form-control" min="0" max="100" required>
-</div>
-
-<div class="col-md-12">
-  <label class="form-label">Komentar</label>
-  <textarea name="komentar" class="form-control" rows="3"></textarea>
-</div>
-
-</div>
-
-<button class="btn btn-primary mt-3">
+<button class="btn btn-primary mt-4">
   Simpan Penilaian Akhir
 </button>
 
 </form>
+
 </div>
 </div>
 

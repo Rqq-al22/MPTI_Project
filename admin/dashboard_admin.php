@@ -112,9 +112,7 @@ $total_bimbingan = $q_bimbingan->fetch_assoc()['total'] ?? 0;
               Buat Pengumuman
             </a>
 
-            <a href="laporan_rekap.php" class="btn btn-outline-success">
-              Rekap Laporan KP
-            </a>
+            
           </div>
         </div>
       </div>

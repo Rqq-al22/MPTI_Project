@@ -12,14 +12,19 @@ $asset_prefix  = "../";
 $logout_prefix = "../";
 
 /* ===============================
-   AMBIL NIDN DOSEN
+   AMBIL DATA DOSEN
    =============================== */
 $user_id = $_SESSION['user_id'];
+
 $stmt = $conn->prepare("SELECT nidn FROM dosen WHERE id_user = ? LIMIT 1");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $dosen = $stmt->get_result()->fetch_assoc();
-if (!$dosen) die("Data dosen tidak ditemukan");
+$stmt->close();
+
+if (!$dosen) {
+    die("Data dosen tidak ditemukan.");
+}
 $nidn = $dosen['nidn'];
 
 /* ===============================
@@ -30,34 +35,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $aksi = $_POST['aksi'] ?? '';
     $id_laporan = intval($_POST['id_laporan_mingguan'] ?? 0);
 
-    // UBAH STATUS
+    /* ---- UBAH STATUS LAPORAN ---- */
     if ($aksi === 'ubah_status') {
-        $status_baru = $_POST['status'] ?? 'Menunggu';
+
+        $status = $_POST['status'] ?? 'Menunggu';
 
         $stmt = $conn->prepare("
             UPDATE laporan_mingguan
             SET status = ?
             WHERE id_laporan_mingguan = ?
         ");
-        $stmt->bind_param("si", $status_baru, $id_laporan);
+        $stmt->bind_param("si", $status, $id_laporan);
         $stmt->execute();
+        $stmt->close();
     }
 
-    // SIMPAN / UPDATE NILAI
+    /* ---- SIMPAN / UPDATE NILAI ---- */
     if ($aksi === 'nilai') {
-        $nilai = intval($_POST['nilai']);
+
+        $nilai    = intval($_POST['nilai']);
         $komentar = trim($_POST['komentar'] ?? '');
 
         $stmt = $conn->prepare("
-            INSERT INTO penilaian_mingguan (id_laporan_mingguan, nilai, komentar)
-            VALUES (?, ?, ?)
+            INSERT INTO penilaian_mingguan 
+                (id_laporan_mingguan, nidn, nilai, komentar)
+            VALUES (?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE
-              nilai = VALUES(nilai),
-              komentar = VALUES(komentar),
-              updated_at = CURRENT_TIMESTAMP
+                nilai = VALUES(nilai),
+                komentar = VALUES(komentar)
         ");
-        $stmt->bind_param("iis", $id_laporan, $nilai, $komentar);
+        $stmt->bind_param("isis", $id_laporan, $nidn, $nilai, $komentar);
         $stmt->execute();
+        $stmt->close();
     }
 
     header("Location: penilaian_mingguan.php");
@@ -65,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 /* ===============================
-   AMBIL DATA
+   AMBIL DATA LAPORAN
    =============================== */
 $stmt = $conn->prepare("
     SELECT
@@ -82,7 +91,7 @@ $stmt = $conn->prepare("
     JOIN kp k ON lm.id_kp = k.id_kp
     JOIN mahasiswa m ON k.nim = m.nim
     LEFT JOIN penilaian_mingguan pm
-      ON pm.id_laporan_mingguan = lm.id_laporan_mingguan
+        ON pm.id_laporan_mingguan = lm.id_laporan_mingguan
     WHERE k.nidn = ?
       AND k.status = 'Berlangsung'
     ORDER BY lm.minggu_ke DESC
@@ -90,31 +99,33 @@ $stmt = $conn->prepare("
 $stmt->bind_param("s", $nidn);
 $stmt->execute();
 $result = $stmt->get_result();
+$stmt->close();
 
 /* ===============================
-   HELPER
+   HELPER (ANTI REDECLARE)
    =============================== */
-function badgeStatus($status) {
-    return match ($status) {
-        'Menunggu'  => ['warning','Menunggu'],
-        'Disetujui' => ['success','Disetujui'],
-        'Ditolak'   => ['danger','Ditolak'],
-        default     => ['secondary','-']
-    };
+if (!function_exists('badgeStatus')) {
+    function badgeStatus(string $status): array {
+        return match ($status) {
+            'Menunggu'  => ['secondary', 'Menunggu'],
+            'Disetujui' => ['success', 'Disetujui'],
+            'Ditolak'   => ['danger', 'Ditolak'],
+            default     => ['secondary', '-']
+        };
+    }
 }
 
 include "../includes/layout_top.php";
 include "../includes/sidebar_dosen.php";
+include "../includes/header.php";
 ?>
 
 <main class="pc-container">
-<?php include "../includes/header.php"; ?>
-
 <div class="pc-content">
 
 <h3 class="fw-bold mb-2">Penilaian Mingguan Mahasiswa</h3>
 <p class="text-muted mb-4">
-  ACC laporan, ubah status, dan beri nilai progres mingguan mahasiswa bimbingan.
+  Verifikasi laporan dan penilaian progres mingguan mahasiswa bimbingan.
 </p>
 
 <div class="card shadow-sm">
@@ -130,33 +141,33 @@ include "../includes/sidebar_dosen.php";
   <th>Status</th>
   <th>File</th>
   <th>Nilai</th>
-  <th width="38%">Aksi</th>
+  <th width="35%">Aksi</th>
 </tr>
 </thead>
 
 <tbody>
 <?php if ($result->num_rows > 0): ?>
 <?php while ($row = $result->fetch_assoc()): ?>
-<?php [$b,$l] = badgeStatus($row['status_laporan']); ?>
+<?php [$bg, $label] = badgeStatus($row['status_laporan']); ?>
 
 <tr>
 <td><?= $row['minggu_ke'] ?></td>
 
 <td>
-  <b><?= htmlspecialchars($row['nama_mhs']) ?></b><br>
+  <strong><?= htmlspecialchars($row['nama_mhs']) ?></strong><br>
   <small><?= $row['nim'] ?></small>
 </td>
 
 <td><?= htmlspecialchars($row['judul']) ?></td>
 
 <td>
-  <span class="badge bg-<?= $b ?>"><?= $l ?></span>
+  <span class="badge bg-<?= $bg ?>"><?= $label ?></span>
 </td>
 
 <td>
   <a target="_blank"
      class="btn btn-sm btn-outline-primary"
-     href="<?= $asset_prefix ?>uploads/laporan/<?= $row['file_laporan'] ?>">
+     href="<?= $asset_prefix ?>uploads/laporan/<?= htmlspecialchars($row['file_laporan']) ?>">
      Lihat
   </a>
 </td>
@@ -167,7 +178,7 @@ include "../includes/sidebar_dosen.php";
 
 <td>
 
-<!-- FORM UBAH STATUS -->
+<!-- FORM STATUS -->
 <form method="post" class="row g-1 mb-1">
   <input type="hidden" name="aksi" value="ubah_status">
   <input type="hidden" name="id_laporan_mingguan" value="<?= $row['id_laporan_mingguan'] ?>">
@@ -181,23 +192,21 @@ include "../includes/sidebar_dosen.php";
   </div>
 
   <div class="col-3 d-grid">
-    <button class="btn btn-warning btn-sm">Edit</button>
+    <button class="btn btn-warning btn-sm">Simpan</button>
   </div>
 </form>
 
-<!-- FORM NILAI (HANYA JIKA DISETUJUI) -->
+<!-- FORM NILAI -->
 <?php if ($row['status_laporan'] === 'Disetujui'): ?>
 <form method="post" class="row g-1">
   <input type="hidden" name="aksi" value="nilai">
   <input type="hidden" name="id_laporan_mingguan" value="<?= $row['id_laporan_mingguan'] ?>">
 
   <div class="col-3">
-    <input type="number"
-           name="nilai"
+    <input type="number" name="nilai"
            min="0" max="100"
            value="<?= $row['nilai'] ?? '' ?>"
-           class="form-control form-control-sm"
-           required>
+           class="form-control form-control-sm" required>
   </div>
 
   <div class="col-5">
@@ -223,7 +232,7 @@ include "../includes/sidebar_dosen.php";
 <?php else: ?>
 <tr>
 <td colspan="7" class="text-center text-muted py-4">
-  Belum ada laporan mingguan.
+  Belum ada laporan mingguan mahasiswa.
 </td>
 </tr>
 <?php endif; ?>

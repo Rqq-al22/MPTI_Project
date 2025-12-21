@@ -18,8 +18,8 @@ $asset_prefix = $asset_prefix ?? "../";
       <ul class="pc-navbar">
 
         <!-- DASHBOARD -->
-        <li class="pc-item <?= ($current_page == 'dashboard.php') ? 'active' : '' ?>">
-          <a href="<?= $asset_prefix ?>dosen/dashboard.php" class="pc-link">
+        <li class="pc-item <?= ($current_page == 'dashboard_dosen.php') ? 'active' : '' ?>">
+          <a href="<?= $asset_prefix ?>dosen/dashboard_dosen.php" class="pc-link">
             <span class="pc-micon"><i class="ti ti-home"></i></span>
             <span class="pc-mtext">Dashboard</span>
           </a>

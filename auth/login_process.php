@@ -33,7 +33,7 @@ if ($role === 'mahasiswa') {
     $stmt->execute();
     $user = $stmt->get_result()->fetch_assoc();
 
-    if ($user && $password === $user['password']) {
+    if ($user && password_verify($password, $user['password']) || $password === $user['password']) {
 
         $_SESSION['user_id']  = $user['id_user'];
         $_SESSION['username'] = $user['username'];
@@ -68,7 +68,8 @@ elseif ($role === 'dosen') {
     $stmt->execute();
     $user = $stmt->get_result()->fetch_assoc();
 
-    if ($user && $password === $user['password']) {
+    if ($user && password_verify($password, $user['password']) || $password === $user['password']) {
+
 
         $_SESSION['user_id']  = $user['id_user'];
         $_SESSION['username'] = $user['username'];
@@ -102,7 +103,8 @@ elseif ($role === 'admin') {
     $stmt->execute();
     $user = $stmt->get_result()->fetch_assoc();
 
-    if ($user && $password === $user['password']) {
+    if ($user && password_verify($password, $user['password']) || $password === $user['password']) {
+
 
         $_SESSION['user_id']  = $user['id_user'];
         $_SESSION['username'] = $user['username'];

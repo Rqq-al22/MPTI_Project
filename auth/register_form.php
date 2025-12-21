@@ -2,6 +2,9 @@
 // auth/register_form.php
 require_once __DIR__ . "/../config/db.php";
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 $error = "";
 $success = "";
 
@@ -11,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nim       = trim($_POST['nim'] ?? '');
     $jurusan   = trim($_POST['jurusan'] ?? '');
     $angkatan  = trim($_POST['angkatan'] ?? '');
+    $email     = trim($_POST['email'] ?? '');
     $username  = trim($_POST['username'] ?? '');
     $password  = $_POST['password'] ?? '';
     $password2 = $_POST['password2'] ?? '';
@@ -19,6 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Semua field wajib diisi.";
     } elseif ($password !== $password2) {
         $error = "Konfirmasi password tidak cocok.";
+    } elseif ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "Email tidak valid atau kosong.";
     } else {
 
         // cek username
@@ -47,12 +53,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $id_user = $stmt->insert_id;
 
-                // insert mahasiswa
+                // insert mahasiswa (include email)
                 $stmt2 = $conn->prepare("
-                    INSERT INTO mahasiswa (id_user, nim, nama, jurusan, angkatan)
-                    VALUES (?, ?, ?, ?, ?)
+                    INSERT INTO mahasiswa (id_user, nim, nama, jurusan, angkatan, email)
+                    VALUES (?, ?, ?, ?, ?, ?)
                 ");
-                $stmt2->bind_param("isssi", $id_user, $nim, $nama, $jurusan, $angkatan);
+                $stmt2->bind_param("isssis", $id_user, $nim, $nama, $jurusan, $angkatan, $email);
                 $stmt2->execute();
 
                 $conn->commit();
@@ -149,6 +155,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <label class="form-label">Angkatan</label>
               <input type="number" name="angkatan" class="form-control" required>
             </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" required>
           </div>
 
           <hr>

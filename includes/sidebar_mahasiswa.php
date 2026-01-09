@@ -13,10 +13,10 @@ $asset_prefix = $asset_prefix ?? "../";
 
 <nav class="pc-sidebar">
   <div class="navbar-wrapper">
+       <!-- LOGO -->
     <div class="m-header">
-      <a href="<?= $asset_prefix ?>mahasiswa/dashboard_mahasiswa.php" class="b-brand text-primary">
-        <img src="<?= $asset_prefix ?>assets/images/logo-white.svg"
-             class="img-fluid logo-lg" alt="logo" />
+      <a href="<?= $asset_prefix ?>admin/dashboard_admin.php" class="b-brand text-primary">
+        <span class="b-title">SI Rekap KP</span>
       </a>
     </div>
 

@@ -13,6 +13,13 @@ $asset_prefix = $asset_prefix ?? "../";
 
 <nav class="pc-sidebar">
   <div class="navbar-wrapper">
+
+     <!-- LOGO -->
+    <div class="m-header">
+      <a href="<?= $asset_prefix ?>admin/dashboard_admin.php" class="b-brand text-primary">
+        <span class="b-title">SI Rekap KP</span>
+      </a>
+    </div>
     <div class="navbar-content">
 
       <ul class="pc-navbar">

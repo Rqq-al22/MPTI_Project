@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . "/../config/db.php";
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 $error = "";
 $success = "";
 
@@ -10,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nim       = trim($_POST['nim'] ?? '');
     $jurusan   = trim($_POST['jurusan'] ?? '');
     $angkatan  = trim($_POST['angkatan'] ?? '');
+    $email     = trim($_POST['email'] ?? '');
     $username  = trim($_POST['username'] ?? '');
     $password  = $_POST['password'] ?? '';
     $password2 = $_POST['password2'] ?? '';
@@ -18,6 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Semua field wajib diisi.";
     } elseif ($password !== $password2) {
         $error = "Konfirmasi password tidak cocok.";
+    } elseif ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "Email tidak valid atau kosong.";
     } else {
 
         $cek = $conn->prepare("SELECT id_user FROM users WHERE username = ? LIMIT 1");
@@ -44,10 +50,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $id_user = $stmt->insert_id;
 
                 $stmt2 = $conn->prepare("
-                    INSERT INTO mahasiswa (id_user, nim, nama, jurusan, angkatan)
-                    VALUES (?, ?, ?, ?, ?)
+                    INSERT INTO mahasiswa (id_user, nim, nama, jurusan, angkatan, email)
+                    VALUES (?, ?, ?, ?, ?, ?)
                 ");
-                $stmt2->bind_param("isssi", $id_user, $nim, $nama, $jurusan, $angkatan);
+                $stmt2->bind_param("isssis", $id_user, $nim, $nama, $jurusan, $angkatan, $email);
                 $stmt2->execute();
 
                 $conn->commit();
@@ -272,16 +278,16 @@ body{
           <input type="text" name="nim" class="form-control" required>
         </div>
 
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Jurusan</label>
-            <input type="text" name="jurusan" class="form-control" required>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Jurusan</label>
+              <input type="text" name="jurusan" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Angkatan</label>
+              <input type="number" name="angkatan" class="form-control" required>
+            </div>
           </div>
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Angkatan</label>
-            <input type="number" name="angkatan" class="form-control" required>
-          </div>
-        </div>
 
         <hr>
 

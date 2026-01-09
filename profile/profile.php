@@ -45,9 +45,9 @@ if (!$user) die("User tidak ditemukan");
 if ($id_role == 1) {
     $q = $conn->prepare("SELECT nama_admin AS nama, email FROM admin WHERE id_user=?");
 } elseif ($id_role == 2) {
-    $q = $conn->prepare("SELECT nama, nidn, jurusan, keahlian FROM dosen WHERE id_user=?");
+    $q = $conn->prepare("SELECT nama, nidn, jurusan, keahlian, email FROM dosen WHERE id_user=?");
 } else {
-    $q = $conn->prepare("SELECT nama, nim, jurusan, angkatan FROM mahasiswa WHERE id_user=?");
+    $q = $conn->prepare("SELECT nama, nim, jurusan, angkatan, email FROM mahasiswa WHERE id_user=?");
 }
 $q->bind_param("i", $user_id);
 $q->execute();
@@ -93,14 +93,16 @@ if (isset($_POST['simpan_profil'])) {
         } elseif ($id_role == 2) {
             $jurusan = trim($_POST['jurusan'] ?? '');
             $keahlian = trim($_POST['keahlian'] ?? '');
-            $stmt = $conn->prepare("UPDATE dosen SET nama=?, jurusan=?, keahlian=? WHERE id_user=?");
-            $stmt->bind_param("sssi", $nama, $jurusan, $keahlian, $user_id);
+            $email = trim($_POST['email'] ?? '');
+            $stmt = $conn->prepare("UPDATE dosen SET nama=?, jurusan=?, keahlian=?, email=? WHERE id_user=?");
+            $stmt->bind_param("ssssi", $nama, $jurusan, $keahlian, $email, $user_id);
 
         } else {
             $jurusan = trim($_POST['jurusan'] ?? '');
             $angkatan = (int)($_POST['angkatan'] ?? 0);
-            $stmt = $conn->prepare("UPDATE mahasiswa SET nama=?, jurusan=?, angkatan=? WHERE id_user=?");
-            $stmt->bind_param("ssii", $nama, $jurusan, $angkatan, $user_id);
+            $email = trim($_POST['email'] ?? '');
+            $stmt = $conn->prepare("UPDATE mahasiswa SET nama=?, jurusan=?, angkatan=?, email=? WHERE id_user=?");
+            $stmt->bind_param("ssiis", $nama, $jurusan, $angkatan, $email, $user_id);
         }
 
         $stmt->execute();
@@ -167,11 +169,13 @@ else include __DIR__ . "/../includes/sidebar_mahasiswa.php";
 
 <?php elseif ($id_role == 2): ?>
 <input type="text" class="form-control mb-2" value="<?= htmlspecialchars($profil['nidn'] ?? '') ?>" disabled>
+<input type="email" name="email" class="form-control mb-2" value="<?= htmlspecialchars($profil['email'] ?? '') ?>">
 <input type="text" name="jurusan" class="form-control mb-2" value="<?= htmlspecialchars($profil['jurusan'] ?? '') ?>">
 <input type="text" name="keahlian" class="form-control" value="<?= htmlspecialchars($profil['keahlian'] ?? '') ?>">
 
 <?php else: ?>
 <input type="text" class="form-control mb-2" value="<?= htmlspecialchars($profil['nim'] ?? '') ?>" disabled>
+<input type="email" name="email" class="form-control mb-2" value="<?= htmlspecialchars($profil['email'] ?? '') ?>">
 <input type="text" name="jurusan" class="form-control mb-2" value="<?= htmlspecialchars($profil['jurusan'] ?? '') ?>">
 <input type="number" name="angkatan" class="form-control" value="<?= htmlspecialchars($profil['angkatan'] ?? '') ?>">
 

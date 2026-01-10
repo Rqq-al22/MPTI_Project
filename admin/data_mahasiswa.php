@@ -11,7 +11,7 @@ if (isset($_POST['tambah_mahasiswa'])) {
     $nim      = trim($_POST['nim']);
     $nama     = trim($_POST['nama']);
     $jurusan  = trim($_POST['jurusan']);
-    $angkatan = trim($_POST['angkatan']);
+    $angkatan = (int)($_POST['angkatan'] ?? 0);
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
 
@@ -24,7 +24,7 @@ if (isset($_POST['tambah_mahasiswa'])) {
         ");
         $stmt->bind_param("ss", $username, $password);
         $stmt->execute();
-        $id_user = $conn->insert_id;
+        $id_user = (int)$conn->insert_id;
 
         // 2. Tambah mahasiswa
         $stmt = $conn->prepare("
@@ -47,10 +47,10 @@ if (isset($_POST['edit_mahasiswa'])) {
     $nim      = $_POST['nim'];
     $nama     = $_POST['nama'];
     $jurusan  = $_POST['jurusan'];
-    $angkatan = $_POST['angkatan'];
+    $angkatan = (int)($_POST['angkatan'] ?? 0);
     $username = $_POST['username'];
     $password = $_POST['password'];
-    $id_user  = $_POST['id_user'];
+    $id_user  = (int)$_POST['id_user'];
 
     // Update tabel mahasiswa
     $stmt = $conn->prepare("
@@ -89,6 +89,15 @@ $logout_prefix = "../";
 
 include "../includes/layout_top.php";
 include "../includes/sidebar_admin.php";
+
+/* =====================================================
+   FILTER / SEARCH (GET)
+   - q        : cari NIM atau Nama
+   - angkatan : filter angkatan (exact)
+   ===================================================== */
+$searchQ   = trim($_GET['q'] ?? '');
+$angkatanF = trim($_GET['angkatan'] ?? '');
+$angkatanFInt = ($angkatanF !== '' ? (int)$angkatanF : null);
 ?>
 
 <main class="pc-container">
@@ -131,12 +140,12 @@ include "../includes/sidebar_admin.php";
 
 <div class="col-md-6">
 <label class="form-label">Jurusan</label>
-<input type="text" name="jurusan" class="form-control">
+<input type="text" name="jurusan" class="form-control" placeholder="contoh: Teknik Informatika">
 </div>
 
 <div class="col-md-6">
 <label class="form-label">Angkatan</label>
-<input type="number" name="angkatan" class="form-control">
+<input type="number" name="angkatan" class="form-control" placeholder="contoh: 2024">
 </div>
 
 <hr class="my-3">
@@ -161,10 +170,32 @@ Simpan Mahasiswa
 </div>
 
 <!-- =====================================================
-     TABEL DATA MAHASISWA
+     TABEL DATA MAHASISWA + SEARCH
      ===================================================== -->
 <div class="card shadow-sm">
 <div class="card-body">
+
+<!-- FORM CARI / FILTER -->
+<form method="get" class="row g-2 align-items-end mb-3">
+  <div class="col-md-6">
+    <label class="form-label mb-1">Cari (NIM / Nama)</label>
+    <input type="text" name="q" class="form-control"
+           value="<?= htmlspecialchars($searchQ) ?>"
+           placeholder="contoh: E1E1240 atau Dirga">
+  </div>
+
+  <div class="col-md-3">
+    <label class="form-label mb-1">Angkatan</label>
+    <input type="number" name="angkatan" class="form-control"
+           value="<?= htmlspecialchars($angkatanF) ?>"
+           placeholder="contoh: 2024">
+  </div>
+
+  <div class="col-md-3 d-flex gap-2">
+    <button class="btn btn-outline-primary w-100" type="submit">Cari</button>
+    <a class="btn btn-outline-secondary w-100" href="data_mahasiswa.php">Reset</a>
+  </div>
+</form>
 
 <div class="table-responsive">
 <table class="table table-bordered table-hover align-middle">
@@ -181,22 +212,53 @@ Simpan Mahasiswa
 <tbody>
 
 <?php
-$q = $conn->query("
-    SELECT m.*, u.username
-    FROM mahasiswa m
-    JOIN users u ON m.id_user = u.id_user
-    ORDER BY m.nama ASC
-");
+// --- QUERY DENGAN FILTER (AMAN) ---
+$sql = "
+  SELECT m.*, u.username
+  FROM mahasiswa m
+  JOIN users u ON m.id_user = u.id_user
+  WHERE 1=1
+";
 
-if ($q->num_rows === 0):
+$types = "";
+$params = [];
+
+if ($searchQ !== "") {
+    $sql .= " AND (m.nim LIKE ? OR m.nama LIKE ?)";
+    $like = "%{$searchQ}%";
+    $types .= "ss";
+    $params[] = $like;
+    $params[] = $like;
+}
+
+if ($angkatanFInt !== null && $angkatanF !== '') {
+    $sql .= " AND m.angkatan = ?";
+    $types .= "i";
+    $params[] = $angkatanFInt;
+}
+
+$sql .= " ORDER BY m.nama ASC";
+
+$stmt = $conn->prepare($sql);
+if (!$stmt) {
+    echo '<tr><td colspan="6" class="text-center text-danger">Query error: ' . htmlspecialchars($conn->error) . '</td></tr>';
+} else {
+    if ($types !== "") {
+        $stmt->bind_param($types, ...$params);
+    }
+    $stmt->execute();
+    $q = $stmt->get_result();
+
+    if ($q->num_rows === 0):
 ?>
 <tr>
 <td colspan="6" class="text-center text-muted">
-Belum ada data mahasiswa.
+Tidak ada data yang cocok dengan pencarian.
 </td>
 </tr>
-<?php else:
-while ($r = $q->fetch_assoc()):
+<?php
+    else:
+        while ($r = $q->fetch_assoc()):
 ?>
 <tr>
 <td><?= htmlspecialchars($r['nim']) ?></td>
@@ -210,15 +272,21 @@ onclick="editMahasiswa(
 '<?= $r['nim'] ?>',
 '<?= addslashes($r['nama']) ?>',
 '<?= addslashes($r['jurusan']) ?>',
-'<?= $r['angkatan'] ?>',
-'<?= $r['username'] ?>',
-'<?= $r['id_user'] ?>'
+'<?= (int)$r['angkatan'] ?>',
+'<?= addslashes($r['username']) ?>',
+'<?= (int)$r['id_user'] ?>'
 )">
 Edit
 </button>
 </td>
 </tr>
-<?php endwhile; endif; ?>
+<?php
+        endwhile;
+    endif;
+
+    $stmt->close();
+}
+?>
 
 </tbody>
 </table>
@@ -287,13 +355,13 @@ Edit
 
 <script>
 function editMahasiswa(nim,nama,jurusan,angkatan,username,id_user){
-document.getElementById('e_nim').value = nim;
-document.getElementById('e_nama').value = nama;
-document.getElementById('e_jurusan').value = jurusan;
-document.getElementById('e_angkatan').value = angkatan;
-document.getElementById('e_username').value = username;
-document.getElementById('e_id_user').value = id_user;
-new bootstrap.Modal(document.getElementById('modalEditMahasiswa')).show();
+  document.getElementById('e_nim').value = nim;
+  document.getElementById('e_nama').value = nama;
+  document.getElementById('e_jurusan').value = jurusan;
+  document.getElementById('e_angkatan').value = angkatan;
+  document.getElementById('e_username').value = username;
+  document.getElementById('e_id_user').value = id_user;
+  new bootstrap.Modal(document.getElementById('modalEditMahasiswa')).show();
 }
 </script>
 

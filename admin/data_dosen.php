@@ -31,7 +31,7 @@ while ($r = $res->fetch_assoc()) {
 
 /* Helper: validasi kode peminatan */
 function validPeminatan(string $kode, array $list): bool {
-    return isset($list[$kode]);
+    return $kode !== '' && isset($list[$kode]);
 }
 
 /* Helper: ambil id_peminatan dari kode (jika pakai relasi) */
@@ -56,7 +56,7 @@ if (isset($_POST['tambah_dosen'])) {
     $nip       = trim($_POST['nip'] ?? '');
     $nama      = trim($_POST['nama'] ?? '');
     $jurusan   = trim($_POST['jurusan'] ?? '');
-    $pemKode   = trim($_POST['peminatan'] ?? ''); // simpan kode (RPL/KBJ/KCV)
+    $pemKode   = trim($_POST['peminatan'] ?? ''); // kode: RPL/KBJ/KCV
     $username  = trim($_POST['username'] ?? '');
     $password  = trim($_POST['password'] ?? '');
 
@@ -68,31 +68,27 @@ if (isset($_POST['tambah_dosen'])) {
 
     if ($error === "") {
         $conn->begin_transaction();
-
         try {
             // (1) Insert user DOSEN (role dosen = 2)
-            $stmt = $conn->prepare("
-                INSERT INTO users (username, password, id_role)
-                VALUES (?, ?, 2)
-            ");
-            $stmt->bind_param("ss", $username, $password);
+            $pwHash = password_hash($password, PASSWORD_DEFAULT);
+
+            $stmt = $conn->prepare("INSERT INTO users (username, password, id_role) VALUES (?, ?, 2)");
+            $stmt->bind_param("ss", $username, $pwHash);
             $stmt->execute();
             $stmt->close();
+
             $id_user = (int)$conn->insert_id;
 
             // (2) Insert dosen
             if ($useIdPeminatan) {
                 $idPem = getIdPeminatan($conn, $pemKode);
-                if ($idPem === null) {
-                    throw new Exception("Kode peminatan tidak ditemukan di tabel peminatan.");
-                }
+                if ($idPem === null) throw new Exception("Kode peminatan tidak ditemukan.");
                 $stmt = $conn->prepare("
                     INSERT INTO dosen (nidn, nip, nama, jurusan, id_peminatan, id_user)
                     VALUES (?, ?, ?, ?, ?, ?)
                 ");
                 $stmt->bind_param("ssssii", $nidn, $nip, $nama, $jurusan, $idPem, $id_user);
             } else {
-                // simpan kode peminatan ke kolom dosen.peminatan (varchar)
                 $stmt = $conn->prepare("
                     INSERT INTO dosen (nidn, nip, nama, jurusan, peminatan, id_user)
                     VALUES (?, ?, ?, ?, ?, ?)
@@ -136,14 +132,12 @@ if (isset($_POST['edit_dosen'])) {
 
     if ($error === "") {
         $conn->begin_transaction();
-
         try {
             // Update dosen
             if ($useIdPeminatan) {
                 $idPem = getIdPeminatan($conn, $pemKode);
-                if ($idPem === null) {
-                    throw new Exception("Kode peminatan tidak ditemukan di tabel peminatan.");
-                }
+                if ($idPem === null) throw new Exception("Kode peminatan tidak ditemukan.");
+
                 $stmt = $conn->prepare("
                     UPDATE dosen
                     SET nip=?, nama=?, jurusan=?, id_peminatan=?
@@ -163,8 +157,9 @@ if (isset($_POST['edit_dosen'])) {
 
             // Update users
             if ($password !== '') {
+                $pwHash = password_hash($password, PASSWORD_DEFAULT);
                 $stmt = $conn->prepare("UPDATE users SET username=?, password=? WHERE id_user=?");
-                $stmt->bind_param("ssi", $username, $password, $id_user);
+                $stmt->bind_param("ssi", $username, $pwHash, $id_user);
             } else {
                 $stmt = $conn->prepare("UPDATE users SET username=? WHERE id_user=?");
                 $stmt->bind_param("si", $username, $id_user);
@@ -184,6 +179,90 @@ if (isset($_POST['edit_dosen'])) {
 }
 
 /* =====================================================
+   FITUR CARI DOSEN (GET)
+   - q: cari NIDN atau Nama
+   - pem: filter peminatan (kode)
+   ===================================================== */
+$searchQ   = trim($_GET['q'] ?? '');
+$searchPem = trim($_GET['pem'] ?? ''); // kode peminatan
+
+// validasi peminatan GET (kalau tidak valid -> kosongkan agar tidak bikin hasil aneh)
+if ($searchPem !== '' && !isset($peminatanList[$searchPem])) {
+    $searchPem = '';
+}
+
+/* =====================================================
+   AMBIL DATA DOSEN UNTUK TABEL (PAKAI PREPARED STATEMENT)
+   ===================================================== */
+$sqlBase = "";
+$params = [];
+$types  = "";
+
+if ($useIdPeminatan) {
+    $sqlBase = "
+        SELECT d.*, u.username,
+               p.kode AS pem_kode, p.nama AS pem_nama
+        FROM dosen d
+        JOIN users u ON d.id_user = u.id_user
+        LEFT JOIN peminatan p ON d.id_peminatan = p.id_peminatan
+        WHERE 1=1
+    ";
+
+    // filter q (nidn/nama)
+    if ($searchQ !== '') {
+        $sqlBase .= " AND (d.nidn LIKE ? OR d.nama LIKE ?) ";
+        $like = "%{$searchQ}%";
+        $types .= "ss";
+        $params[] = $like;
+        $params[] = $like;
+    }
+
+    // filter peminatan
+    if ($searchPem !== '') {
+        $sqlBase .= " AND p.kode = ? ";
+        $types .= "s";
+        $params[] = $searchPem;
+    }
+
+    $sqlBase .= " ORDER BY d.nama ASC ";
+
+} else {
+    $sqlBase = "
+        SELECT d.*, u.username,
+               p.kode AS pem_kode, p.nama AS pem_nama
+        FROM dosen d
+        JOIN users u ON d.id_user = u.id_user
+        LEFT JOIN peminatan p ON p.kode = d.peminatan
+        WHERE 1=1
+    ";
+
+    if ($searchQ !== '') {
+        $sqlBase .= " AND (d.nidn LIKE ? OR d.nama LIKE ?) ";
+        $like = "%{$searchQ}%";
+        $types .= "ss";
+        $params[] = $like;
+        $params[] = $like;
+    }
+
+    if ($searchPem !== '') {
+        $sqlBase .= " AND d.peminatan = ? ";
+        $types .= "s";
+        $params[] = $searchPem;
+    }
+
+    $sqlBase .= " ORDER BY d.nama ASC ";
+}
+
+$stmtList = $conn->prepare($sqlBase);
+if ($types !== "") {
+    $stmtList->bind_param($types, ...$params);
+}
+$stmtList->execute();
+$q = $stmtList->get_result();
+$rows = $q->fetch_all(MYSQLI_ASSOC);
+$stmtList->close();
+
+/* =====================================================
    SETUP HALAMAN
    ===================================================== */
 $current_page  = 'data_dosen.php';
@@ -193,6 +272,8 @@ $logout_prefix = "../";
 
 include "../includes/layout_top.php";
 include "../includes/sidebar_admin.php";
+
+function h($s){ return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
 ?>
 
 <main class="pc-container">
@@ -203,7 +284,7 @@ include "../includes/sidebar_admin.php";
 <h3 class="fw-bold mb-3">Data Dosen</h3>
 
 <?php if ($error): ?>
-  <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+  <div class="alert alert-danger"><?= h($error) ?></div>
 <?php endif; ?>
 
 <?php if (isset($_GET['status'])): ?>
@@ -219,150 +300,153 @@ include "../includes/sidebar_admin.php";
      FORM TAMBAH DOSEN
      ===================================================== -->
 <div class="card mb-4 shadow-sm">
-<div class="card-body">
-<h5 class="fw-bold mb-3">Tambah Dosen Baru</h5>
+  <div class="card-body">
+    <h5 class="fw-bold mb-3">Tambah Dosen Baru</h5>
 
-<form method="post">
-<input type="hidden" name="tambah_dosen" value="1">
+    <form method="post">
+      <input type="hidden" name="tambah_dosen" value="1">
 
-<div class="row g-3">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">NIDN</label>
+          <input type="text" name="nidn" class="form-control" required>
+        </div>
 
-  <div class="col-md-4">
-    <label class="form-label">NIDN</label>
-    <input type="text" name="nidn" class="form-control" required>
+        <div class="col-md-4">
+          <label class="form-label">NIP</label>
+          <input type="text" name="nip" class="form-control" placeholder="Opsional">
+        </div>
+
+        <div class="col-md-8">
+          <label class="form-label">Nama Dosen</label>
+          <input type="text" name="nama" class="form-control" required>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Jurusan</label>
+          <input type="text" name="jurusan" class="form-control" value="Teknik Informatika">
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Peminatan</label>
+          <select name="peminatan" class="form-select" required>
+            <option value="">-- Pilih Peminatan --</option>
+            <?php foreach ($peminatanList as $kode => $nama): ?>
+              <option value="<?= h($kode) ?>"><?= h($kode . " — " . $nama) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
+        <hr class="my-3">
+
+        <div class="col-md-6">
+          <label class="form-label">Username Login</label>
+          <input type="text" name="username" class="form-control" required>
+          <small class="text-muted">Saran: gunakan NIDN sebagai username.</small>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Password Login</label>
+          <input type="text" name="password" class="form-control" required>
+        </div>
+      </div>
+
+      <button class="btn btn-primary mt-3">Simpan Dosen</button>
+    </form>
   </div>
-
-  <div class="col-md-4">
-    <label class="form-label">NIP</label>
-    <input type="text" name="nip" class="form-control" placeholder="Opsional">
-  </div>
-
-  <div class="col-md-8">
-    <label class="form-label">Nama Dosen</label>
-    <input type="text" name="nama" class="form-control" required>
-  </div>
-
-  <div class="col-md-6">
-    <label class="form-label">Jurusan</label>
-    <input type="text" name="jurusan" class="form-control" value="Teknik Informatika">
-  </div>
-
-  <div class="col-md-6">
-    <label class="form-label">Peminatan</label>
-    <select name="peminatan" class="form-select" required>
-      <option value="">-- Pilih Peminatan --</option>
-      <?php foreach ($peminatanList as $kode => $nama): ?>
-        <option value="<?= htmlspecialchars($kode) ?>">
-          <?= htmlspecialchars($kode . " — " . $nama) ?>
-        </option>
-      <?php endforeach; ?>
-    </select>
-  </div>
-
-  <hr class="my-3">
-
-  <div class="col-md-6">
-    <label class="form-label">Username Login</label>
-    <input type="text" name="username" class="form-control" required>
-    <small class="text-muted">Saran: gunakan NIDN sebagai username.</small>
-  </div>
-
-  <div class="col-md-6">
-    <label class="form-label">Password Login</label>
-    <input type="text" name="password" class="form-control" required>
-  </div>
-
 </div>
 
-<button class="btn btn-primary mt-3">Simpan Dosen</button>
+<!-- =====================================================
+     FILTER / SEARCH
+     ===================================================== -->
+<div class="card mb-3 shadow-sm">
+  <div class="card-body">
+    <form class="row g-2 align-items-end" method="get" action="data_dosen.php">
+      <div class="col-md-6">
+        <label class="form-label">Cari (NIDN / Nama)</label>
+        <input type="text" name="q" class="form-control" value="<?= h($searchQ) ?>" placeholder="Contoh: 0022 atau Sutardi">
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Filter Peminatan</label>
+        <select name="pem" class="form-select">
+          <option value="">Semua Peminatan</option>
+          <?php foreach ($peminatanList as $kode => $nama): ?>
+            <option value="<?= h($kode) ?>" <?= ($searchPem === $kode ? 'selected' : '') ?>>
+              <?= h($kode . " — " . $nama) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+
+     <div class="col-md-3 d-flex gap-2">
+    <button class="btn btn-outline-primary w-100" type="submit">Cari</button>
+    <a class="btn btn-outline-secondary w-100" href="data_dosen.php">Reset</a>
+  </div>
 </form>
-
-</div>
+    </form>
+  </div>
 </div>
 
 <!-- =====================================================
      TABEL DATA DOSEN
      ===================================================== -->
 <div class="card shadow-sm">
-<div class="card-body">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover align-middle">
+        <thead class="table-primary text-center">
+          <tr>
+            <th>NIDN</th>
+            <th>NIP</th>
+            <th>Nama</th>
+            <th>Jurusan</th>
+            <th>Peminatan</th>
+            <th>Username</th>
+            <th width="12%">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
 
-<div class="table-responsive">
-<table class="table table-bordered table-hover align-middle">
-<thead class="table-primary text-center">
-<tr>
-  <th>NIDN</th>
-  <th>NIP</th>
-  <th>Nama</th>
-  <th>Jurusan</th>
-  <th>Peminatan</th>
-  <th>Username</th>
-  <th width="12%">Aksi</th>
-</tr>
-</thead>
-<tbody>
+        <?php if (empty($rows)): ?>
+          <tr>
+            <td colspan="7" class="text-center text-muted">Data tidak ditemukan.</td>
+          </tr>
+        <?php else: ?>
+          <?php foreach ($rows as $r):
+              $pemKode  = $r['pem_kode'] ?: ($r['peminatan'] ?? '');
+              $pemNama  = $r['pem_nama'] ?: '';
+              $pemLabel = trim($pemKode . ($pemNama ? " — " . $pemNama : ""));
+          ?>
+          <tr>
+            <td><?= h($r['nidn']) ?></td>
+            <td><?= h($r['nip'] ?: '-') ?></td>
+            <td><?= h($r['nama']) ?></td>
+            <td><?= h($r['jurusan'] ?: '-') ?></td>
+            <td><?= h($pemLabel ?: '-') ?></td>
+            <td><?= h($r['username']) ?></td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-warning"
+                onclick="editDosen(
+                  '<?= h($r['nidn']) ?>',
+                  '<?= h($r['nip'] ?? '') ?>',
+                  '<?= h($r['nama']) ?>',
+                  '<?= h($r['jurusan'] ?? '') ?>',
+                  '<?= h($pemKode ?? '') ?>',
+                  '<?= h($r['username']) ?>',
+                  '<?= (int)$r['id_user'] ?>'
+                )">
+                Edit
+              </button>
+            </td>
+          </tr>
+          <?php endforeach; ?>
+        <?php endif; ?>
 
-<?php
-if ($useIdPeminatan) {
-    $q = $conn->query("
-        SELECT d.*, u.username,
-               p.kode AS pem_kode, p.nama AS pem_nama
-        FROM dosen d
-        JOIN users u ON d.id_user = u.id_user
-        LEFT JOIN peminatan p ON d.id_peminatan = p.id_peminatan
-        ORDER BY d.nama ASC
-    ");
-} else {
-    // d.peminatan berisi kode (RPL/KBJ/KCV). Tampilkan nama dari tabel peminatan.
-    $q = $conn->query("
-        SELECT d.*, u.username,
-               p.kode AS pem_kode, p.nama AS pem_nama
-        FROM dosen d
-        JOIN users u ON d.id_user = u.id_user
-        LEFT JOIN peminatan p ON p.kode = d.peminatan
-        ORDER BY d.nama ASC
-    ");
-}
-
-if ($q->num_rows === 0):
-?>
-<tr>
-  <td colspan="7" class="text-center text-muted">Belum ada data dosen.</td>
-</tr>
-<?php else:
-while ($r = $q->fetch_assoc()):
-  $pemKode = $r['pem_kode'] ?: ($r['peminatan'] ?? '');
-  $pemNama = $r['pem_nama'] ?: '';
-  $pemLabel = trim($pemKode . ($pemNama ? " — " . $pemNama : ""));
-?>
-<tr>
-  <td><?= htmlspecialchars($r['nidn']) ?></td>
-  <td><?= htmlspecialchars($r['nip'] ?: '-') ?></td>
-  <td><?= htmlspecialchars($r['nama']) ?></td>
-  <td><?= htmlspecialchars($r['jurusan'] ?: '-') ?></td>
-  <td><?= htmlspecialchars($pemLabel ?: '-') ?></td>
-  <td><?= htmlspecialchars($r['username']) ?></td>
-  <td class="text-center">
-    <button class="btn btn-sm btn-warning"
-      onclick="editDosen(
-        '<?= htmlspecialchars($r['nidn'], ENT_QUOTES) ?>',
-        '<?= htmlspecialchars($r['nip'] ?? '', ENT_QUOTES) ?>',
-        '<?= htmlspecialchars($r['nama'], ENT_QUOTES) ?>',
-        '<?= htmlspecialchars($r['jurusan'] ?? '', ENT_QUOTES) ?>',
-        '<?= htmlspecialchars($pemKode ?? '', ENT_QUOTES) ?>',
-        '<?= htmlspecialchars($r['username'], ENT_QUOTES) ?>',
-        '<?= (int)$r['id_user'] ?>'
-      )">
-      Edit
-    </button>
-  </td>
-</tr>
-<?php endwhile; endif; ?>
-
-</tbody>
-</table>
-</div>
-
-</div>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 </div>
@@ -372,67 +456,63 @@ while ($r = $q->fetch_assoc()):
      MODAL EDIT DOSEN
      ===================================================== -->
 <div class="modal fade" id="modalEdit" tabindex="-1">
-<div class="modal-dialog">
-<div class="modal-content">
-<form method="post">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post">
 
-<div class="modal-header">
-  <h5 class="modal-title">Edit Data Dosen</h5>
-  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-</div>
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Data Dosen</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
 
-<div class="modal-body">
+        <div class="modal-body">
+          <input type="hidden" name="edit_dosen" value="1">
+          <input type="hidden" name="nidn" id="e_nidn">
+          <input type="hidden" name="id_user" id="e_id_user">
 
-  <input type="hidden" name="edit_dosen" value="1">
-  <input type="hidden" name="nidn" id="e_nidn">
-  <input type="hidden" name="id_user" id="e_id_user">
+          <div class="mb-2">
+            <label>NIP</label>
+            <input type="text" name="nip" id="e_nip" class="form-control" placeholder="Opsional">
+          </div>
 
-  <div class="mb-2">
-    <label>NIP</label>
-    <input type="text" name="nip" id="e_nip" class="form-control" placeholder="Opsional">
+          <div class="mb-2">
+            <label>Nama</label>
+            <input type="text" name="nama" id="e_nama" class="form-control" required>
+          </div>
+
+          <div class="mb-2">
+            <label>Jurusan</label>
+            <input type="text" name="jurusan" id="e_jurusan" class="form-control">
+          </div>
+
+          <div class="mb-2">
+            <label>Peminatan</label>
+            <select name="peminatan" id="e_peminatan" class="form-select" required>
+              <option value="">-- Pilih Peminatan --</option>
+              <?php foreach ($peminatanList as $kode => $nama): ?>
+                <option value="<?= h($kode) ?>"><?= h($kode . " — " . $nama) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+
+          <div class="mb-2">
+            <label>Username</label>
+            <input type="text" name="username" id="e_username" class="form-control" required>
+          </div>
+
+          <div class="mb-2">
+            <label>Password (kosongkan jika tidak diubah)</label>
+            <input type="text" name="password" class="form-control">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-primary">Simpan Perubahan</button>
+        </div>
+
+      </form>
+    </div>
   </div>
-
-  <div class="mb-2">
-    <label>Nama</label>
-    <input type="text" name="nama" id="e_nama" class="form-control" required>
-  </div>
-
-  <div class="mb-2">
-    <label>Jurusan</label>
-    <input type="text" name="jurusan" id="e_jurusan" class="form-control">
-  </div>
-
-  <div class="mb-2">
-    <label>Peminatan</label>
-    <select name="peminatan" id="e_peminatan" class="form-select" required>
-      <option value="">-- Pilih Peminatan --</option>
-      <?php foreach ($peminatanList as $kode => $nama): ?>
-        <option value="<?= htmlspecialchars($kode) ?>">
-          <?= htmlspecialchars($kode . " — " . $nama) ?>
-        </option>
-      <?php endforeach; ?>
-    </select>
-  </div>
-
-  <div class="mb-2">
-    <label>Username</label>
-    <input type="text" name="username" id="e_username" class="form-control" required>
-  </div>
-
-  <div class="mb-2">
-    <label>Password (kosongkan jika tidak diubah)</label>
-    <input type="text" name="password" class="form-control">
-  </div>
-
-</div>
-
-<div class="modal-footer">
-  <button class="btn btn-primary">Simpan Perubahan</button>
-</div>
-
-</form>
-</div>
-</div>
 </div>
 
 <script>
@@ -444,7 +524,6 @@ function editDosen(nidn, nip, nama, jurusan, peminatanKode, username, id_user){
   document.getElementById('e_username').value = username;
   document.getElementById('e_id_user').value = id_user;
 
-  // set select peminatan berdasarkan kode
   const sel = document.getElementById('e_peminatan');
   sel.value = peminatanKode || '';
 

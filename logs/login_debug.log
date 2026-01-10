@@ -1,0 +1,32 @@
+[2026-01-09 11:31:04] username-first | identity=0014068304 | found_user=0
+[2026-01-09 11:31:04] mahasiswa | identity=0014068304 | user_found=0
+[2026-01-09 11:31:07] username-first | identity=0014068304 | found_user=0
+[2026-01-09 11:31:07] mahasiswa | identity=0014068304 | user_found=0
+[2026-01-09 11:31:14] username-first | identity=E1E124008 | found_user=0
+[2026-01-09 11:31:14] mahasiswa | identity=E1E124008 | user_found=1 | matched_by=nim | pw_verify=0 | plain_eq=1 | stored_pw=nuralam08
+[2026-01-09 11:31:55] username-first | identity=202201001 | found_user=0
+[2026-01-09 11:31:55] mahasiswa | identity=202201001 | user_found=1 | matched_by=nim | pw_verify=0 | plain_eq=1 | stored_pw=12345
+[2026-01-10 02:57:20] username-first | identity=E1E124007 | found_user=1 | id_user=98 | id_role=3
+[2026-01-10 03:01:34] username-first | identity=admin | found_user=1 | id_user=219 | id_role=1
+[2026-01-10 04:48:51] username-first | identity=admin | found_user=1 | id_user=219 | id_role=1
+[2026-01-10 04:49:02] username-first | identity=E1E124007 | found_user=1 | id_user=98 | id_role=3
+[2026-01-10 04:49:57] username-first | identity=admin | found_user=1 | id_user=219 | id_role=1
+[2026-01-10 04:50:27] username-first | identity=E1E124007 | found_user=1 | id_user=98 | id_role=3
+[2026-01-10 04:51:19] username-first | identity=0014068304 | found_user=0
+[2026-01-10 04:51:19] dosen | identity=0014068304 | user_found=1 | matched_by=nidn | pw_verify=0 | plain_eq=1 | stored_pw=0014068304
+[2026-01-10 04:51:38] username-first | identity=E1E124007 | found_user=1 | id_user=98 | id_role=3
+[2026-01-10 05:07:12] username-first | identity=0014068304 | found_user=0
+[2026-01-10 05:07:12] dosen | identity=0014068304 | user_found=1 | matched_by=nidn | pw_verify=0 | plain_eq=1 | stored_pw=0014068304
+[2026-01-10 05:52:49] username-first | identity=E1E124007 | found_user=1 | id_user=98 | id_role=3
+[2026-01-10 05:53:15] username-first | identity=admin | found_user=1 | id_user=219 | id_role=1
+[2026-01-10 06:40:32] username-first | identity=admin | found_user=1 | id_user=219 | id_role=1
+[2026-01-10 06:40:41] username-first | identity=admin | found_user=1 | id_user=219 | id_role=1
+[2026-01-10 06:40:49] username-first | identity=admin | found_user=1 | id_user=219 | id_role=1
+[2026-01-10 06:40:56] username-first | identity=admin | found_user=1 | id_user=219 | id_role=1
+[2026-01-10 06:41:14] username-first | identity=E1E124007 | found_user=1 | id_user=98 | id_role=3
+[2026-01-10 06:42:05] username-first | identity=admin | found_user=1 | id_user=219 | id_role=1
+[2026-01-10 06:42:43] username-first | identity=admin | found_user=1 | id_user=219 | id_role=1
+[2026-01-10 06:48:43] mahasiswa | identity=admin | found=0 | nim=-
+[2026-01-10 06:48:48] mahasiswa | identity=admin | found=0 | nim=-
+[2026-01-10 06:48:52] admin | identity=admin | found=1
+[2026-01-10 06:48:52] role=admin | id_user=219 | id_role=1 | pw_ok=1

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 20 Des 2025 pada 07.38
+-- Waktu pembuatan: 10 Jan 2026 pada 06.51
 -- Versi server: 10.4.32-MariaDB
 -- Versi PHP: 8.2.12
 
@@ -40,7 +40,27 @@ CREATE TABLE `admin` (
 --
 
 INSERT INTO `admin` (`id_admin`, `id_user`, `nama_admin`, `email`, `created_at`) VALUES
-(1, 7, 'Administrator Kampus', 'admin@kampus.ac.id', '2025-12-19 19:52:05');
+(3, 219, 'Admin Utama', NULL, '2026-01-10 10:01:05');
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `angkatan`
+--
+
+CREATE TABLE `angkatan` (
+  `tahun` int(11) NOT NULL,
+  `label` varchar(30) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data untuk tabel `angkatan`
+--
+
+INSERT INTO `angkatan` (`tahun`, `label`, `created_at`) VALUES
+(2024, 'Angkatan 2024', '2026-01-09 14:17:42'),
+(2025, 'Angkatan 2025', '2026-01-09 14:17:42');
 
 -- --------------------------------------------------------
 
@@ -92,9 +112,10 @@ DELIMITER ;
 
 CREATE TABLE `dosen` (
   `nidn` varchar(20) NOT NULL,
+  `nip` varchar(30) DEFAULT NULL,
   `nama` varchar(100) DEFAULT NULL,
   `jurusan` varchar(100) DEFAULT NULL,
-  `keahlian` varchar(100) DEFAULT NULL,
+  `peminatan` varchar(100) DEFAULT NULL,
   `id_user` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -102,9 +123,28 @@ CREATE TABLE `dosen` (
 -- Dumping data untuk tabel `dosen`
 --
 
-INSERT INTO `dosen` (`nidn`, `nama`, `jurusan`, `keahlian`, `id_user`) VALUES
-('0981234567', 'Hasman S.kom', 'Teknik Informatika', 'Web Devolper', 8),
-('1987654321', 'Andi Pratama, S.T., M.Kom', 'Teknik Informatika', 'Teknik Informatika', 5);
+INSERT INTO `dosen` (`nidn`, `nip`, `nama`, `jurusan`, `peminatan`, `id_user`) VALUES
+('0006049104', '199104062019031021', 'Rizal Adi Saputra, ST., M.Kom.', 'Teknik Informatika', 'KCV', 228),
+('0007078904', '0007078904', 'Ilham Julian Efendi, ST., MT.', 'Teknik Informatika', 'RPL', 229),
+('0007118106', '198111072008122003', 'Statiswaty, ST., MMSi.', 'Teknik Informatika', 'RPL', 230),
+('0008078610', '198607082019031013', 'La Surimi, S.Si., M.Cs.', 'Teknik Informatika', 'KBJ', 231),
+('0009096503', '196502081988021001', 'Dr. Muh. Ihsan Sarita, M.Kom.', 'Teknik Informatika', 'KCV', 232),
+('0014068304', '198306142010011017', 'Muhammad Yamin, ST., M.Eng', 'Teknik Informatika', 'KBJ', 233),
+('0016018308', '198301162010122002', 'Ika Purwanti Ningrum, S.Kom., M.Cs', 'Teknik Informatika', 'KCV', 234),
+('0017088402', '199408172022031014', 'Asa Hari Wibowo, ST., M.Eng.', 'Teknik Informatika', 'RPL', 235),
+('0017117606', '197611172006122001', 'Isnawaty, S.Si., MT.', 'Teknik Informatika', 'KBJ', 236),
+('0017127802', '197812172006012002', 'Hasmina Tari Mokui, S.ST., M.E., P.hD.', 'Teknik Informatika', 'RPL', 237),
+('0020057902', '0020057902', 'Subardin, ST., MT.', 'Teknik Informatika', 'KBJ', 238),
+('0022017304', '197301222001121002', 'Mustarum Musaruddin, S.T., M.IT., Ph.D.', 'Teknik Informatika', 'KBJ', 239),
+('0022027607', '197602220101210001', 'Sutardi, S.Kom., MT.', 'Teknik Informatika', 'RPL', 240),
+('0023068101', '198106332018031001', 'Adha Mashur Sajiah, ST., M.Eng.', 'Teknik Informatika', 'KCV', 241),
+('0023078406', '198407222015041003', 'LM. Fid Aksara, S.Kom., M.Kom.', 'Teknik Informatika', 'KBJ', 242),
+('0025047107', '197104252006011010', 'Bambang Pramono, S.Si., MT.', 'Teknik Informatika', 'RPL', 243),
+('0028107501', '197802200501002', 'Dr. Laode Muhammad Golok Jaya, ST., MT.', 'Teknik Informatika', 'RPL', 244),
+('0029128402', '198412282015041002', 'Natalis Ransi, S.Si., M.Cs.', 'Teknik Informatika', 'RPL', 245),
+('0030048107', '0030048107', 'Laode Muhammad Tajidun, ST., MT.', 'Teknik Informatika', 'RPL', 246),
+('0906028701', '198702062015041003', 'Jumadil Nangi, S.Kom., MT.', 'Teknik Informatika', 'RPL', 247),
+('0929058902', '198809262019031011', 'LM Bahtiar Aksara, ST., MT.', 'Teknik Informatika', 'KCV', 248);
 
 -- --------------------------------------------------------
 
@@ -166,10 +206,7 @@ CREATE TABLE `kp` (
 --
 
 INSERT INTO `kp` (`id_kp`, `nim`, `nama_instansi`, `alamat_instansi`, `kontak_instansi`, `id_instansi`, `nidn`, `posisi`, `pembimbing_instansi`, `tgl_mulai`, `tgl_selesai`, `status`, `surat_diterima_file`, `catatan_admin`, `created_at`) VALUES
-(1, '202201001', 'PT Telkom Indonesia Witel Sulawesi Tenggara', 'Jl. Jenderal Ahmad Yani No. 15, Kelurahan Wawowanggu, Kendari\r\n', NULL, NULL, NULL, 'Web Developer', 'Bapak Andi Saputra, S.Kom', '2025-12-19', '2026-02-28', 'Pengajuan', 'surat_202201001_1766137967.jpg', NULL, '2025-12-19 09:52:47'),
-(2, '202201001', 'PT Telkom Indonesia Witel Sulawesi Tenggara', 'jln.Ahmad Yani', '082215545654', NULL, '1987654321', 'Web Developer', 'Bapak Andi Saputra, S.Kom', '2025-12-19', '2026-02-19', 'Berlangsung', 'surat_202201001_1766141354.jpg', NULL, '2025-12-19 10:49:14'),
-(4, '202201001', NULL, NULL, NULL, NULL, '1987654321', NULL, NULL, NULL, NULL, 'Ditolak', NULL, NULL, '2025-12-20 00:57:01'),
-(5, 'E1E124015', 'PT Telkom Indonesia Witel Sulawesi Tenggara', 'kkalal', '192919010', NULL, NULL, 'Backend', 'jjsjs', NULL, NULL, 'Pengajuan', NULL, NULL, '2025-12-20 02:28:38');
+(10, 'E1E124007', 'CV Antam Kolaka', 'Kolaka', '082296644593', NULL, '0014068304', 'Web Developer', 'Agus S.T,.M.T', '2026-01-10', '2026-03-10', 'Berlangsung', 'surat_1768016988_817.jpg', NULL, '2026-01-10 03:49:48');
 
 --
 -- Trigger `kp`
@@ -275,13 +312,6 @@ CREATE TABLE `laporan_mingguan` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data untuk tabel `laporan_mingguan`
---
-
-INSERT INTO `laporan_mingguan` (`id_laporan_mingguan`, `id_kp`, `minggu_ke`, `judul`, `ringkasan`, `file_laporan`, `status`, `tanggal_upload`) VALUES
-(1, 2, 1, 'haloo', 'cm,zc zmc', 'laporan_202201001_minggu1_1766188064.docx', 'Menunggu', '2025-12-20');
-
---
 -- Trigger `laporan_mingguan`
 --
 DELIMITER $$
@@ -316,11 +346,84 @@ CREATE TABLE `mahasiswa` (
 --
 
 INSERT INTO `mahasiswa` (`nim`, `nama`, `jurusan`, `angkatan`, `id_user`) VALUES
-('202201001', 'La Ode Muhamad Dirga', 'Teknik Informatika', 2024, 4),
-('E1E124015', 'Rezky Alya', 'Teknik Informatika', 2024, 9),
-('E1E124043', 'Muhammmad Nur Alam Syahrir', 'Teknik Informatika', 2024, 10),
-('E1E124057', 'Annisa Nurul Faizah', 'Teknik Informatika', 2024, 11),
-('E1E124069', 'Muhammad Fildan Pratama', 'Teknik Informatika', 2024, 12);
+('E1E124001', 'A. MUFIDAH IDRIS', 'Teknik Informatika', 2024, 92),
+('E1E124002', 'ABDUL RAHIM HUSEIN', 'Teknik Informatika', 2024, 93),
+('E1E124003', 'AQNY DANU UTAMI', 'Teknik Informatika', 2024, 94),
+('E1E124004', 'AWALIYAH FADHILATUN NISA', 'Teknik Informatika', 2024, 95),
+('E1E124005', 'ELANG FIRMANSYAH', 'Teknik Informatika', 2024, 96),
+('E1E124006', 'FARID KHADHRA RAMADHAN', 'Teknik Informatika', 2024, 97),
+('E1E124007', 'LA ODE MUHAMAD DIRGA', 'Teknik Informatika', 2024, 98),
+('E1E124008', 'LA ODE MUHAMMAD SULTHAN KOLOGOU', 'Teknik Informatika', 2024, 99),
+('E1E124010', 'MUHAMMAD ROZZAAQ NUR RAMADHAN', 'Teknik Informatika', 2024, 100),
+('E1E124012', 'NINDY ASMAWATY', 'Teknik Informatika', 2024, 101),
+('E1E124013', 'PUTU EKA FEBRIANI', 'Teknik Informatika', 2024, 102),
+('E1E124014', 'RESKY YANI', 'Teknik Informatika', 2024, 103),
+('E1E124015', 'REZKI ALYA PASRUN', 'Teknik Informatika', 2024, 104),
+('E1E124016', 'SHEERA ANNISA', 'Teknik Informatika', 2024, 105),
+('E1E124017', 'SYAFIATUL ADAWIAH', 'Teknik Informatika', 2024, 106),
+('E1E124018', 'SYAKILA MEILANA RUSLIN', 'Teknik Informatika', 2024, 107),
+('E1E124019', 'THALIA DWI PUSPITA AYU', 'Teknik Informatika', 2024, 108),
+('E1E124020', 'WA LIANDANI', 'Teknik Informatika', 2024, 109),
+('E1E124021', 'WA ODE INDAH NURRAMADHANI', 'Teknik Informatika', 2024, 110),
+('E1E124022', 'WA RAHMIYANTI', 'Teknik Informatika', 2024, 111),
+('E1E124023', 'A. TENRY LIU MEY ASPAT COLLE', 'Teknik Informatika', 2024, 112),
+('E1E124024', 'AGUS CASHFLOWER AKBAR', 'Teknik Informatika', 2024, 113),
+('E1E124025', 'AGUS HARTONO', 'Teknik Informatika', 2024, 114),
+('E1E124026', 'AIRUL ROFIQ RAMADHAN', 'Teknik Informatika', 2024, 115),
+('E1E124027', 'ANANDA ADEN PUTRA', 'Teknik Informatika', 2024, 116),
+('E1E124028', 'ANDER GIBRAN SIREGAR', 'Teknik Informatika', 2024, 117),
+('E1E124029', 'ANISSA SALSABILA', 'Teknik Informatika', 2024, 118),
+('E1E124030', 'ASRAF FALAJ BUNTALA', 'Teknik Informatika', 2024, 119),
+('E1E124031', 'DIVA PRATIWI SARMUDIN', 'Teknik Informatika', 2024, 120),
+('E1E124032', 'ELDA INDAH SANDA LANGI', 'Teknik Informatika', 2024, 121),
+('E1E124033', 'FADHILAH FAJAR RAHMA HEDA', 'Teknik Informatika', 2024, 122),
+('E1E124034', 'FAIRUZ NAILAL RAJWA PUTRI AMRAN', 'Teknik Informatika', 2024, 123),
+('E1E124035', 'FATIH MUHAMMAD BINTANG POSSUMAH', 'Teknik Informatika', 2024, 124),
+('E1E124036', 'FRISILIA FEBIOLA', 'Teknik Informatika', 2024, 125),
+('E1E124037', 'GILANG SYAH FITRAH RAMADHAN', 'Teknik Informatika', 2024, 126),
+('E1E124038', 'GITA PRANGESTI', 'Teknik Informatika', 2024, 127),
+('E1E124039', 'LA ODE GUNTUR KAIMUDIN', 'Teknik Informatika', 2024, 128),
+('E1E124040', 'LA ODE MUHAMAD INDRA RUKMANA', 'Teknik Informatika', 2024, 129),
+('E1E124041', 'MIQDAD ASYRAF RIZQULLAH', 'Teknik Informatika', 2024, 130),
+('E1E124042', 'MUH. FAHRIL', 'Teknik Informatika', 2024, 131),
+('E1E124043', 'MUH. NUR ALAM SYAHRIR', 'Teknik Informatika', 2024, 132),
+('E1E124044', 'MUH. YUSUF', 'Teknik Informatika', 2024, 133),
+('E1E124045', 'MUHAMMAD RIZKY YAMIN', 'Teknik Informatika', 2024, 134),
+('E1E124046', 'NEYSA RAZANA MAHNEERAH', 'Teknik Informatika', 2024, 135),
+('E1E124047', 'NIKMAL ANAKORUO', 'Teknik Informatika', 2024, 136),
+('E1E124048', 'RAHMI', 'Teknik Informatika', 2024, 137),
+('E1E124049', 'SAFARIL ADAM', 'Teknik Informatika', 2024, 138),
+('E1E124050', 'SASKYA MEYTRA ODE', 'Teknik Informatika', 2024, 139),
+('E1E124051', 'SRI MAHARANI', 'Teknik Informatika', 2024, 140),
+('E1E124052', 'SUCI WULANDARI', 'Teknik Informatika', 2024, 141),
+('E1E124053', 'SYAFIQ DAWWAS', 'Teknik Informatika', 2024, 142),
+('E1E124054', 'SYAWAL AHMAD RABIUL', 'Teknik Informatika', 2024, 143),
+('E1E124055', 'ABDILLAH JUMAWAL KODA', 'Teknik Informatika', 2024, 144),
+('E1E124056', 'ALISCHA PUTRI WULAN AZ-ZAHWA', 'Teknik Informatika', 2024, 145),
+('E1E124057', 'ANNISA NURUL FAIZAH', 'Teknik Informatika', 2024, 146),
+('E1E124058', 'ARRIYA RAHALDI AL KANDARI', 'Teknik Informatika', 2024, 147),
+('E1E124059', 'CINTA WARDANA', 'Teknik Informatika', 2024, 148),
+('E1E124060', 'FAJRINA AULIA AMLAN', 'Teknik Informatika', 2024, 149),
+('E1E124061', 'KAHAR MUNAJAT', 'Teknik Informatika', 2024, 150),
+('E1E124062', 'LA ODE AFDAL MUNIFA', 'Teknik Informatika', 2024, 151),
+('E1E124063', 'LA ODE MUAMMAR RAIHAN SALADIN', 'Teknik Informatika', 2024, 152),
+('E1E124064', 'LA ODE MUHAMAD AHLUL BAIT', 'Teknik Informatika', 2024, 153),
+('E1E124065', 'LA ODE MUHAMMAD FAUZILAZHIM', 'Teknik Informatika', 2024, 154),
+('E1E124066', 'LA ODE NAUVAL AQIILAH TSAQIF', 'Teknik Informatika', 2024, 155),
+('E1E124067', 'MAYA AGUSTIN', 'Teknik Informatika', 2024, 156),
+('E1E124068', 'MIKHAEL ABRAHAM WIDIANTO', 'Teknik Informatika', 2024, 157),
+('E1E124069', 'MUH FILDAN PRATAMA', 'Teknik Informatika', 2024, 158),
+('E1E124071', 'MUH.ALBYANSYAH QAISHAR POROSI', 'Teknik Informatika', 2024, 159),
+('E1E124072', 'MUH.RABILDZAN', 'Teknik Informatika', 2024, 160),
+('E1E124073', 'MUHAMAD ASWAAD SATRIA PRATAMA', 'Teknik Informatika', 2024, 161),
+('E1E124074', 'MUHAMMAD DZAKY FIRDAUS', 'Teknik Informatika', 2024, 162),
+('E1E124076', 'PUTRI FADHILAH ZUHAIRAH', 'Teknik Informatika', 2024, 163),
+('E1E124077', 'RIZKMAH LAILATUL RAMADHANI', 'Teknik Informatika', 2024, 164),
+('E1E124078', 'TOBING ADYA YAKOP', 'Teknik Informatika', 2024, 165),
+('E1E124079', 'VYOLA CECILIA POTTO', 'Teknik Informatika', 2024, 166),
+('E1E124080', 'WA ODE YURISMAWATI', 'Teknik Informatika', 2024, 167),
+('E1E124081', 'WAHAB RAHMAN SAPUTRA', 'Teknik Informatika', 2024, 168),
+('E1E124082', 'ZULFAN NURCAHAYDI', 'Teknik Informatika', 2024, 169);
 
 -- --------------------------------------------------------
 
@@ -340,99 +443,40 @@ CREATE TABLE `monitoring` (
 --
 
 INSERT INTO `monitoring` (`id_monitoring`, `aktivitas`, `waktu`, `id_user`) VALUES
-(1, 'Login', '2025-12-13 11:51:33', 3),
-(2, 'Login', '2025-12-13 11:52:50', 3),
-(3, 'Login', '2025-12-13 11:52:57', 3),
-(4, 'Login', '2025-12-13 12:06:09', 3),
-(5, 'Login', '2025-12-13 12:19:10', 2),
-(6, 'Login', '2025-12-13 12:27:48', 3),
-(7, 'Login', '2025-12-13 12:30:21', 3),
-(8, 'Login', '2025-12-13 12:30:37', 3),
-(9, 'Login', '2025-12-13 12:49:35', 3),
-(10, 'Login', '2025-12-13 12:50:10', 3),
-(11, 'Login', '2025-12-13 12:52:43', 3),
-(12, 'Login', '2025-12-13 13:15:35', 1),
-(13, 'Login', '2025-12-13 13:23:34', 1),
-(14, 'Login', '2025-12-13 13:24:27', 3),
-(15, 'Login', '2025-12-14 03:08:19', 3),
-(16, 'Login', '2025-12-19 05:25:00', 3),
-(17, 'Login', '2025-12-19 05:27:40', 3),
-(18, 'Login', '2025-12-19 05:43:03', 3),
-(19, 'Login', '2025-12-19 05:46:40', 3),
-(20, 'Login', '2025-12-19 05:51:02', 3),
-(21, 'Logout dari sistem', '2025-12-19 16:51:50', 7),
-(22, 'Menetapkan dosen pembimbing untuk mahasiswa NIM ', '2025-12-19 16:59:41', 7),
-(23, 'Logout dari sistem', '2025-12-19 17:09:05', 7),
-(24, 'Logout dari sistem', '2025-12-19 17:21:06', 7),
-(25, 'Mahasiswa login ke sistem', '2025-12-19 17:26:09', 4),
-(26, 'Dosen login ke sistem', '2025-12-19 17:34:30', 5),
-(27, 'Mahasiswa login ke sistem', '2025-12-19 17:37:46', 4),
-(28, 'Mahasiswa login ke sistem', '2025-12-19 17:45:38', 4),
-(29, 'Mahasiswa login ke sistem', '2025-12-19 17:48:05', 4),
-(30, 'Mahasiswa login ke sistem', '2025-12-19 17:49:35', 4),
-(31, 'Logout dari sistem', '2025-12-19 17:57:15', 4),
-(32, 'Dosen login ke sistem', '2025-12-19 17:58:37', 5),
-(33, 'Logout dari sistem', '2025-12-19 17:59:01', 5),
-(34, 'Mahasiswa login ke sistem', '2025-12-19 17:59:41', 4),
-(35, 'Mahasiswa login ke sistem', '2025-12-19 18:02:02', 4),
-(36, 'Logout dari sistem', '2025-12-19 18:13:11', 4),
-(37, 'Admin login ke sistem', '2025-12-19 18:15:25', 7),
-(38, 'Logout dari sistem', '2025-12-19 18:15:35', 7),
-(39, 'Dosen login ke sistem', '2025-12-19 18:15:42', 5),
-(40, 'Admin login ke sistem', '2025-12-19 18:16:23', 7),
-(41, 'Menetapkan dosen pembimbing untuk mahasiswa NIM ', '2025-12-19 18:16:34', 7),
-(42, 'Menetapkan dosen pembimbing untuk mahasiswa NIM ', '2025-12-19 18:16:48', 7),
-(43, 'Logout dari sistem', '2025-12-19 18:16:57', 7),
-(44, 'Dosen login ke sistem', '2025-12-19 18:17:09', 5),
-(45, 'Logout dari sistem', '2025-12-19 18:22:25', 5),
-(46, 'Mahasiswa login ke sistem', '2025-12-19 18:24:10', 4),
-(47, 'Dosen login ke sistem', '2025-12-19 18:24:22', 5),
-(48, 'Mahasiswa login ke sistem', '2025-12-19 18:29:50', 4),
-(49, 'Logout dari sistem', '2025-12-19 18:29:57', 4),
-(50, 'Dosen login ke sistem', '2025-12-19 18:30:04', 5),
-(51, 'Logout dari sistem', '2025-12-19 18:30:33', 5),
-(52, 'Admin login ke sistem', '2025-12-19 18:30:44', 7),
-(53, 'Logout dari sistem', '2025-12-19 18:31:04', 7),
-(54, 'Mahasiswa login ke sistem', '2025-12-19 23:03:55', 4),
-(55, 'Dosen login ke sistem', '2025-12-19 23:07:01', 5),
-(56, 'Mahasiswa login ke sistem', '2025-12-19 23:46:52', 4),
-(57, 'Dosen login ke sistem', '2025-12-19 23:48:10', 5),
-(58, 'Mahasiswa login ke sistem', '2025-12-19 23:52:25', 4),
-(59, 'Dosen login ke sistem', '2025-12-19 23:52:59', 5),
-(60, 'Logout dari sistem', '2025-12-20 00:58:33', 5),
-(61, 'Mahasiswa login ke sistem', '2025-12-20 00:58:38', 4),
-(62, 'Logout dari sistem', '2025-12-20 02:06:07', 4),
-(63, 'Dosen login ke sistem', '2025-12-20 02:06:14', 5),
-(64, 'Logout dari sistem', '2025-12-20 02:15:18', 5),
-(65, 'Mahasiswa login ke sistem', '2025-12-20 02:15:29', 4),
-(66, 'Logout dari sistem', '2025-12-20 02:15:39', 4),
-(67, 'Admin login ke sistem', '2025-12-20 02:15:53', 7),
-(68, 'Menetapkan dosen pembimbing untuk mahasiswa NIM ', '2025-12-20 02:19:23', 7),
-(69, 'Logout dari sistem', '2025-12-20 02:20:02', 7),
-(70, 'Admin login ke sistem', '2025-12-20 02:20:29', 7),
-(71, 'Logout dari sistem', '2025-12-20 02:23:15', 7),
-(72, 'Mahasiswa login ke sistem', '2025-12-20 02:23:57', 9),
-(73, 'Logout dari sistem', '2025-12-20 02:27:21', 9),
-(74, 'Mahasiswa login ke sistem', '2025-12-20 02:27:27', 4),
-(75, 'Logout dari sistem', '2025-12-20 02:27:38', 4),
-(76, 'Mahasiswa login ke sistem', '2025-12-20 02:27:47', 9),
-(77, 'Logout dari sistem', '2025-12-20 02:35:59', 9),
-(78, 'Mahasiswa login ke sistem', '2025-12-20 02:36:05', 4),
-(79, 'Logout dari sistem', '2025-12-20 02:41:31', 4),
-(80, 'Mahasiswa login ke sistem', '2025-12-20 02:41:37', 9),
-(81, 'Logout dari sistem', '2025-12-20 02:42:01', 9),
-(82, 'Admin login ke sistem', '2025-12-20 02:42:13', 7),
-(83, 'Logout dari sistem', '2025-12-20 02:46:04', 7),
-(84, 'Admin login ke sistem', '2025-12-20 02:46:08', 7),
-(85, 'Logout dari sistem', '2025-12-20 02:46:12', 7),
-(86, 'Mahasiswa login ke sistem', '2025-12-20 02:46:17', 9),
-(87, 'Admin login ke sistem', '2025-12-20 02:47:22', 7),
-(88, 'Logout dari sistem', '2025-12-20 03:15:50', 7),
-(89, 'Admin login ke sistem', '2025-12-20 04:51:04', 7),
-(90, 'Logout dari sistem', '2025-12-20 04:51:16', 7),
-(91, 'Admin login ke sistem', '2025-12-20 06:23:48', 7),
-(92, 'Logout dari sistem', '2025-12-20 06:23:59', 7),
-(93, 'Admin login ke sistem', '2025-12-20 06:25:24', 7);
+(262, 'Mahasiswa login ke sistem', '2026-01-10 01:57:20', 98),
+(263, 'Logout dari sistem', '2026-01-10 01:57:28', 98),
+(264, 'Admin login ke sistem', '2026-01-10 02:01:34', 219),
+(265, 'Logout dari sistem', '2026-01-10 03:48:46', 219),
+(266, 'Admin login ke sistem', '2026-01-10 03:48:51', 219),
+(267, 'Logout dari sistem', '2026-01-10 03:48:57', 219),
+(268, 'Mahasiswa login ke sistem', '2026-01-10 03:49:02', 98),
+(269, 'Logout dari sistem', '2026-01-10 03:49:51', 98),
+(270, 'Admin login ke sistem', '2026-01-10 03:49:57', 219),
+(271, 'Menetapkan dosen pembimbing untuk mahasiswa NIM ', '2026-01-10 03:50:01', 219),
+(272, 'Menetapkan dosen pembimbing untuk mahasiswa NIM ', '2026-01-10 03:50:11', 219),
+(273, 'Logout dari sistem', '2026-01-10 03:50:19', 219),
+(274, 'Mahasiswa login ke sistem', '2026-01-10 03:50:27', 98),
+(275, 'Logout dari sistem', '2026-01-10 03:50:33', 98),
+(276, 'Dosen login ke sistem', '2026-01-10 03:51:19', 233),
+(277, 'Logout dari sistem', '2026-01-10 03:51:33', 233),
+(278, 'Mahasiswa login ke sistem', '2026-01-10 03:51:38', 98),
+(279, 'Logout dari sistem', '2026-01-10 04:06:59', 98),
+(280, 'Dosen login ke sistem', '2026-01-10 04:07:12', 233),
+(281, 'Logout dari sistem', '2026-01-10 04:52:44', 233),
+(282, 'Mahasiswa login ke sistem', '2026-01-10 04:52:49', 98),
+(283, 'Logout dari sistem', '2026-01-10 04:53:10', 98),
+(284, 'Admin login ke sistem', '2026-01-10 04:53:15', 219),
+(285, 'Admin login ke sistem', '2026-01-10 05:40:32', 219),
+(286, 'Logout dari sistem', '2026-01-10 05:40:35', 219),
+(287, 'Admin login ke sistem', '2026-01-10 05:40:41', 219),
+(288, 'Admin login ke sistem', '2026-01-10 05:40:49', 219),
+(289, 'Admin login ke sistem', '2026-01-10 05:40:56', 219),
+(290, 'Logout dari sistem', '2026-01-10 05:40:59', 219),
+(291, 'Mahasiswa login ke sistem', '2026-01-10 05:41:14', 98),
+(292, 'Admin login ke sistem', '2026-01-10 05:42:05', 219),
+(293, 'Logout dari sistem', '2026-01-10 05:42:32', 219),
+(294, 'Admin login ke sistem', '2026-01-10 05:42:43', 219),
+(295, 'Admin login ke sistem', '2026-01-10 05:48:52', 219);
 
 -- --------------------------------------------------------
 
@@ -455,10 +499,29 @@ CREATE TABLE `monitoring_kp` (
 --
 
 INSERT INTO `monitoring_kp` (`id_monitoring`, `id_kp`, `total_laporan`, `total_presensi`, `dokumen_akhir`, `status_kp`, `last_update`) VALUES
-(1, 1, 0, 0, 'Belum', 'Pengajuan', '2025-12-20 00:50:41'),
-(2, 2, 1, 0, 'Belum', 'Berlangsung', '2025-12-20 00:51:11'),
-(4, 4, 0, 0, 'Belum', '', '2025-12-20 02:02:31'),
-(5, 5, 0, 0, 'Belum', 'Pengajuan', '2025-12-20 02:28:38');
+(10, 10, 0, 0, 'Belum', 'Berlangsung', '2026-01-10 03:51:23');
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `peminatan`
+--
+
+CREATE TABLE `peminatan` (
+  `id_peminatan` int(11) NOT NULL,
+  `kode` varchar(10) NOT NULL,
+  `nama` varchar(120) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data untuk tabel `peminatan`
+--
+
+INSERT INTO `peminatan` (`id_peminatan`, `kode`, `nama`, `created_at`) VALUES
+(1, 'RPL', 'Rekayasa Perangkat Lunak', '2026-01-10 03:03:59'),
+(2, 'KBJ', 'Komputasi Berbasis Jaringan', '2026-01-10 03:03:59'),
+(3, 'KCV', 'Komputasi Cerdas dan Visualisasi', '2026-01-10 03:03:59');
 
 -- --------------------------------------------------------
 
@@ -473,13 +536,6 @@ CREATE TABLE `pengumuman` (
   `dibuat_oleh` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data untuk tabel `pengumuman`
---
-
-INSERT INTO `pengumuman` (`id_pengumuman`, `judul`, `isi`, `dibuat_oleh`, `created_at`) VALUES
-(1, 'Haloo', 'kobvjjvv', 5, '2025-12-20 02:12:07');
 
 -- --------------------------------------------------------
 
@@ -551,8 +607,7 @@ CREATE TABLE `presensi` (
 --
 
 INSERT INTO `presensi` (`id_presensi`, `nim`, `tanggal`, `status`, `bukti_foto`, `latitude`, `longitude`, `validasi`, `catatan_dosen`) VALUES
-(2, NULL, '2025-12-19', 'Hadir', 'presensi__1766133365.jpg', -5.13802240, 119.43936000, 'Pending', NULL),
-(3, '202201001', '2025-12-19', 'Hadir', 'presensi_202201001_1766134851.jpg', -5.13802240, 119.43936000, 'Pending', NULL);
+(8, 'E1E124007', '2026-01-10', 'Hadir', 'presensi_E1E124007_1768017120_a35eb57d.jpg', -4.00821330, 122.52453420, 'Pending', NULL);
 
 --
 -- Trigger `presensi`
@@ -628,17 +683,107 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id_user`, `username`, `password`, `id_role`, `created_at`, `foto`) VALUES
-(1, 'admin', 'admin123', 1, '2025-12-13 11:31:10', NULL),
-(2, 'dosen', 'dosen123', 2, '2025-12-13 11:31:10', NULL),
-(3, 'mhs', 'mhs123', 3, '2025-12-13 11:31:10', NULL),
-(4, 'mhs_dirga', '12345', 3, '2025-12-19 08:52:46', NULL),
-(5, 'dosen_andi', 'dosen123', 2, '2025-12-19 11:43:54', NULL),
-(7, 'admin_kp', 'admin123', 1, '2025-12-19 11:50:48', 'profile_69460db5d9a6a3.48702613.jpeg'),
-(8, 'hasman_it', 'hasman123', 2, '2025-12-19 15:48:55', NULL),
-(9, 'alya_15', 'alya2415', 3, '2025-12-20 02:23:00', NULL),
-(10, 'syahrir_43', 'syahrir2443', 3, '2025-12-20 02:50:41', NULL),
-(11, 'annisa_57', 'annisa2457', 3, '2025-12-20 02:52:33', NULL),
-(12, 'fildan_69', 'fildan2469', 3, '2025-12-20 02:55:15', NULL);
+(92, 'E1E124001', 'idris01', 3, '2026-01-10 00:46:38', NULL),
+(93, 'E1E124002', 'husein02', 3, '2026-01-10 00:46:38', NULL),
+(94, 'E1E124003', 'utami03', 3, '2026-01-10 00:46:38', NULL),
+(95, 'E1E124004', 'nisa04', 3, '2026-01-10 00:46:38', NULL),
+(96, 'E1E124005', 'firmansyah05', 3, '2026-01-10 00:46:38', NULL),
+(97, 'E1E124006', 'ramadhan06', 3, '2026-01-10 00:46:38', NULL),
+(98, 'E1E124007', 'dirga07', 3, '2026-01-10 00:46:38', NULL),
+(99, 'E1E124008', 'kologou08', 3, '2026-01-10 00:46:38', NULL),
+(100, 'E1E124010', 'ramadhan10', 3, '2026-01-10 00:46:38', NULL),
+(101, 'E1E124012', 'asmawaty12', 3, '2026-01-10 00:46:38', NULL),
+(102, 'E1E124013', 'febriani13', 3, '2026-01-10 00:46:38', NULL),
+(103, 'E1E124014', 'yani14', 3, '2026-01-10 00:46:38', NULL),
+(104, 'E1E124015', 'pasrun15', 3, '2026-01-10 00:46:38', NULL),
+(105, 'E1E124016', 'annisa16', 3, '2026-01-10 00:46:38', NULL),
+(106, 'E1E124017', 'adawiah17', 3, '2026-01-10 00:46:38', NULL),
+(107, 'E1E124018', 'ruslin18', 3, '2026-01-10 00:46:38', NULL),
+(108, 'E1E124019', 'ayu19', 3, '2026-01-10 00:46:38', NULL),
+(109, 'E1E124020', 'liandani20', 3, '2026-01-10 00:46:38', NULL),
+(110, 'E1E124021', 'nurramadhani21', 3, '2026-01-10 00:46:38', NULL),
+(111, 'E1E124022', 'rahmiyanti22', 3, '2026-01-10 00:46:38', NULL),
+(112, 'E1E124023', 'liu23', 3, '2026-01-10 00:46:38', NULL),
+(113, 'E1E124024', 'akbar24', 3, '2026-01-10 00:46:38', NULL),
+(114, 'E1E124025', 'hartono25', 3, '2026-01-10 00:46:38', NULL),
+(115, 'E1E124026', 'ramadhan26', 3, '2026-01-10 00:46:38', NULL),
+(116, 'E1E124027', 'putra27', 3, '2026-01-10 00:46:38', NULL),
+(117, 'E1E124028', 'siregar28', 3, '2026-01-10 00:46:38', NULL),
+(118, 'E1E124029', 'salsabila29', 3, '2026-01-10 00:46:38', NULL),
+(119, 'E1E124030', 'buntala30', 3, '2026-01-10 00:46:38', NULL),
+(120, 'E1E124031', 'sarmudin31', 3, '2026-01-10 00:46:38', NULL),
+(121, 'E1E124032', 'langi32', 3, '2026-01-10 00:46:38', NULL),
+(122, 'E1E124033', 'heda33', 3, '2026-01-10 00:46:38', NULL),
+(123, 'E1E124034', 'amran34', 3, '2026-01-10 00:46:38', NULL),
+(124, 'E1E124035', 'possumah35', 3, '2026-01-10 00:46:38', NULL),
+(125, 'E1E124036', 'febiola36', 3, '2026-01-10 00:46:38', NULL),
+(126, 'E1E124037', 'ramadhan37', 3, '2026-01-10 00:46:38', NULL),
+(127, 'E1E124038', 'prangesti38', 3, '2026-01-10 00:46:38', NULL),
+(128, 'E1E124039', 'kaimudin39', 3, '2026-01-10 00:46:38', NULL),
+(129, 'E1E124040', 'rukmana40', 3, '2026-01-10 00:46:38', NULL),
+(130, 'E1E124041', 'rizqullah41', 3, '2026-01-10 00:46:38', NULL),
+(131, 'E1E124042', 'fahril42', 3, '2026-01-10 00:46:38', NULL),
+(132, 'E1E124043', 'syahrir43', 3, '2026-01-10 00:46:38', NULL),
+(133, 'E1E124044', 'yusuf44', 3, '2026-01-10 00:46:38', NULL),
+(134, 'E1E124045', 'yamin45', 3, '2026-01-10 00:46:38', NULL),
+(135, 'E1E124046', 'mahneerah46', 3, '2026-01-10 00:46:38', NULL),
+(136, 'E1E124047', 'anakoruo47', 3, '2026-01-10 00:46:38', NULL),
+(137, 'E1E124048', 'rahmi48', 3, '2026-01-10 00:46:38', NULL),
+(138, 'E1E124049', 'adam49', 3, '2026-01-10 00:46:38', NULL),
+(139, 'E1E124050', 'ode50', 3, '2026-01-10 00:46:38', NULL),
+(140, 'E1E124051', 'maharani51', 3, '2026-01-10 00:46:38', NULL),
+(141, 'E1E124052', 'wulandari52', 3, '2026-01-10 00:46:38', NULL),
+(142, 'E1E124053', 'dawwas53', 3, '2026-01-10 00:46:38', NULL),
+(143, 'E1E124054', 'rabiul54', 3, '2026-01-10 00:46:38', NULL),
+(144, 'E1E124055', 'koda55', 3, '2026-01-10 00:46:38', NULL),
+(145, 'E1E124056', 'azzahwa56', 3, '2026-01-10 00:46:38', NULL),
+(146, 'E1E124057', 'faizah57', 3, '2026-01-10 00:46:38', NULL),
+(147, 'E1E124058', 'kandari58', 3, '2026-01-10 00:46:38', NULL),
+(148, 'E1E124059', 'wardana59', 3, '2026-01-10 00:46:38', NULL),
+(149, 'E1E124060', 'amlan60', 3, '2026-01-10 00:46:38', NULL),
+(150, 'E1E124061', 'munajat61', 3, '2026-01-10 00:46:38', NULL),
+(151, 'E1E124062', 'munifa62', 3, '2026-01-10 00:46:38', NULL),
+(152, 'E1E124063', 'saladin63', 3, '2026-01-10 00:46:38', NULL),
+(153, 'E1E124064', 'bait64', 3, '2026-01-10 00:46:38', NULL),
+(154, 'E1E124065', 'fauzilazhim65', 3, '2026-01-10 00:46:38', NULL),
+(155, 'E1E124066', 'tsaqif66', 3, '2026-01-10 00:46:38', NULL),
+(156, 'E1E124067', 'agustin67', 3, '2026-01-10 00:46:38', NULL),
+(157, 'E1E124068', 'widianto68', 3, '2026-01-10 00:46:38', NULL),
+(158, 'E1E124069', 'pratama69', 3, '2026-01-10 00:46:38', NULL),
+(159, 'E1E124071', 'porosi71', 3, '2026-01-10 00:46:38', NULL),
+(160, 'E1E124072', 'rabildzan72', 3, '2026-01-10 00:46:38', NULL),
+(161, 'E1E124073', 'pratama73', 3, '2026-01-10 00:46:38', NULL),
+(162, 'E1E124074', 'firdaus74', 3, '2026-01-10 00:46:38', NULL),
+(163, 'E1E124076', 'zuhairah76', 3, '2026-01-10 00:46:38', NULL),
+(164, 'E1E124077', 'ramadhani77', 3, '2026-01-10 00:46:38', NULL),
+(165, 'E1E124078', 'yakop78', 3, '2026-01-10 00:46:38', NULL),
+(166, 'E1E124079', 'potto79', 3, '2026-01-10 00:46:38', NULL),
+(167, 'E1E124080', 'yurismawati80', 3, '2026-01-10 00:46:38', NULL),
+(168, 'E1E124081', 'saputra81', 3, '2026-01-10 00:46:38', NULL),
+(169, 'E1E124082', 'nurcahaydi82', 3, '2026-01-10 00:46:38', NULL),
+(219, 'admin', 'admin123', 1, '2026-01-10 02:01:05', NULL),
+(220, 'L.M.Dirga', 'syahrir2443', 2, '2026-01-10 02:10:39', NULL),
+(228, 'saputra04', '0006049104', 2, '2026-01-10 03:04:00', NULL),
+(229, 'efendi04', '0007078904', 2, '2026-01-10 03:04:00', NULL),
+(230, 'statiswaty06', '0007118106', 2, '2026-01-10 03:04:00', NULL),
+(231, 'surimi10', '0008078610', 2, '2026-01-10 03:04:00', NULL),
+(232, 'sarita03', '0009096503', 2, '2026-01-10 03:04:00', NULL),
+(233, 'yamin04', '0014068304', 2, '2026-01-10 03:04:00', NULL),
+(234, 'ningrum08', '0016018308', 2, '2026-01-10 03:04:00', NULL),
+(235, 'wibowo02', '0017088402', 2, '2026-01-10 03:04:00', NULL),
+(236, 'isnawaty06', '0017117606', 2, '2026-01-10 03:04:00', NULL),
+(237, 'mokui02', '0017127802', 2, '2026-01-10 03:04:00', NULL),
+(238, 'subardin02', '0020057902', 2, '2026-01-10 03:04:00', NULL),
+(239, 'musaruddin04', '0022017304', 2, '2026-01-10 03:04:00', NULL),
+(240, 'sutardi07', '0022027607', 2, '2026-01-10 03:04:00', NULL),
+(241, 'sajiah01', '0023068101', 2, '2026-01-10 03:04:00', NULL),
+(242, 'aksara06', '0023078406', 2, '2026-01-10 03:04:00', NULL),
+(243, 'pramono07', '0025047107', 2, '2026-01-10 03:04:00', NULL),
+(244, 'jaya01', '0028107501', 2, '2026-01-10 03:04:00', NULL),
+(245, 'ransi02', '0029128402', 2, '2026-01-10 03:04:00', NULL),
+(246, 'tajidun07', '0030048107', 2, '2026-01-10 03:04:00', NULL),
+(247, 'nangi01', '0906028701', 2, '2026-01-10 03:04:00', NULL),
+(248, 'aksara02', '0929058902', 2, '2026-01-10 03:04:00', NULL);
 
 --
 -- Indexes for dumped tables
@@ -650,6 +795,12 @@ INSERT INTO `users` (`id_user`, `username`, `password`, `id_role`, `created_at`,
 ALTER TABLE `admin`
   ADD PRIMARY KEY (`id_admin`),
   ADD KEY `fk_admin_user` (`id_user`);
+
+--
+-- Indeks untuk tabel `angkatan`
+--
+ALTER TABLE `angkatan`
+  ADD PRIMARY KEY (`tahun`);
 
 --
 -- Indeks untuk tabel `bimbingan`
@@ -731,6 +882,13 @@ ALTER TABLE `monitoring_kp`
   ADD KEY `fk_monitoring_kp` (`id_kp`);
 
 --
+-- Indeks untuk tabel `peminatan`
+--
+ALTER TABLE `peminatan`
+  ADD PRIMARY KEY (`id_peminatan`),
+  ADD UNIQUE KEY `kode` (`kode`);
+
+--
 -- Indeks untuk tabel `pengumuman`
 --
 ALTER TABLE `pengumuman`
@@ -796,7 +954,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT untuk tabel `admin`
 --
 ALTER TABLE `admin`
-  MODIFY `id_admin` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_admin` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT untuk tabel `bimbingan`
@@ -808,7 +966,7 @@ ALTER TABLE `bimbingan`
 -- AUTO_INCREMENT untuk tabel `dokumen_akhir`
 --
 ALTER TABLE `dokumen_akhir`
-  MODIFY `id_dokumen_akhir` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_dokumen_akhir` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT untuk tabel `instansi`
@@ -826,7 +984,7 @@ ALTER TABLE `jadwal_pengumuman`
 -- AUTO_INCREMENT untuk tabel `kp`
 --
 ALTER TABLE `kp`
-  MODIFY `id_kp` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_kp` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT untuk tabel `laporan`
@@ -838,25 +996,31 @@ ALTER TABLE `laporan`
 -- AUTO_INCREMENT untuk tabel `laporan_mingguan`
 --
 ALTER TABLE `laporan_mingguan`
-  MODIFY `id_laporan_mingguan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_laporan_mingguan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT untuk tabel `monitoring`
 --
 ALTER TABLE `monitoring`
-  MODIFY `id_monitoring` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=94;
+  MODIFY `id_monitoring` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=296;
 
 --
 -- AUTO_INCREMENT untuk tabel `monitoring_kp`
 --
 ALTER TABLE `monitoring_kp`
-  MODIFY `id_monitoring` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_monitoring` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT untuk tabel `peminatan`
+--
+ALTER TABLE `peminatan`
+  MODIFY `id_peminatan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT untuk tabel `pengumuman`
 --
 ALTER TABLE `pengumuman`
-  MODIFY `id_pengumuman` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_pengumuman` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT untuk tabel `penilaian`
@@ -868,19 +1032,19 @@ ALTER TABLE `penilaian`
 -- AUTO_INCREMENT untuk tabel `penilaian_akhir`
 --
 ALTER TABLE `penilaian_akhir`
-  MODIFY `id_penilaian_akhir` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_penilaian_akhir` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT untuk tabel `penilaian_mingguan`
 --
 ALTER TABLE `penilaian_mingguan`
-  MODIFY `id_penilaian_mingguan` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_penilaian_mingguan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT untuk tabel `presensi`
 --
 ALTER TABLE `presensi`
-  MODIFY `id_presensi` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_presensi` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT untuk tabel `presentasi`
@@ -898,7 +1062,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT untuk tabel `users`
 --
 ALTER TABLE `users`
-  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=259;
 
 --
 -- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)

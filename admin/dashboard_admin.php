@@ -176,7 +176,7 @@ include "../includes/sidebar_admin.php";
       </div>
       <div class="d-flex gap-2">
         <a class="btn btn-outline-secondary btn-sm" href="<?= $asset_prefix ?>profile/profile.php">Profil</a>
-        <a class="btn btn-outline-dark btn-sm" href="<?= $asset_prefix ?>logout.php">Logout</a>
+        <a class="btn btn-outline-dark btn-sm" href="<?= $asset_prefix ?>auth\logout.php">Logout</a>
       </div>
     </div>
 

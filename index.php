@@ -308,6 +308,34 @@ body{
 .footer a:hover{
   text-decoration:underline;
 }
+/* ================= NAVBAR FIX (PASTI TERLIHAT) ================= */
+.navbar-blur .navbar-brand .fw-bold{
+  color: var(--dark);
+}
+.navbar-blur .navbar-brand small{
+  color: var(--text-muted) !important;
+}
+
+.navbar-blur .nav-link{
+  color: var(--dark) !important;
+  opacity: 1 !important;
+}
+.navbar-blur .nav-link:hover,
+.navbar-blur .nav-link:focus{
+  color: var(--tosca-dark) !important;
+}
+
+.navbar-blur .navbar-toggler{
+  border-color: var(--border);
+}
+.navbar-blur .navbar-toggler:focus{
+  box-shadow: 0 0 0 .2rem rgba(20,184,166,.25);
+}
+
+/* Jika icon toggler masih pudar, paksa warnanya */
+.navbar-light .navbar-toggler-icon{
+  filter: none;
+}
 
 </style>
 
@@ -316,7 +344,8 @@ body{
 <body>
 
 <!-- ================= NAVBAR ================= -->
-<nav class="navbar navbar-expand-lg navbar-blur">
+<!-- ================= NAVBAR ================= -->
+<nav class="navbar navbar-expand-lg navbar-blur navbar-light">
   <div class="container">
     <a class="navbar-brand d-flex align-items-center gap-2" href="index.php">
       <div class="brand-badge">KP</div>
@@ -326,19 +355,22 @@ body{
       </div>
     </a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain"
+            aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navMain">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-1">
         <li class="nav-item"><a class="nav-link fw-semibold" href="#beranda">Beranda</a></li>
         <li class="nav-item"><a class="nav-link fw-semibold" href="#fitur">Fitur</a></li>
         <li class="nav-item"><a class="nav-link fw-semibold" href="#alur">Alur KP</a></li>
         <li class="nav-item"><a class="nav-link fw-semibold" href="#tim">Tim Pengembang</a></li>
         <li class="nav-item"><a class="nav-link fw-semibold" href="#tentang">Tentang Sistem</a></li>
-        
-          <a class="btn btn-outline-primary me-2" href="auth/login_form.php">
+
+        <!-- Tombol -->
+        <li class="nav-item ms-lg-2 mt-2 mt-lg-0 d-flex gap-2">
+          <a class="btn btn-outline-primary" href="auth/login_form.php">
             <i class="bi bi-box-arrow-in-right me-1"></i>Login
           </a>
           <a class="btn btn-brand" href="auth/register_form.php">
@@ -349,6 +381,8 @@ body{
     </div>
   </div>
 </nav>
+<!-- ================= END NAVBAR ================= -->
+
 <!-- ================= END NAVBAR ================= -->
 
 

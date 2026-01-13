@@ -2,57 +2,50 @@
 require_once "../auth/auth_check.php";
 require_role('mahasiswa');
 
-header('Content-Type: application/json; charset=utf-8');
+header('Content-Type: application/json');
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['ok' => false, 'message' => 'Method tidak diizinkan.']);
-    exit;
-}
+if (session_status() === PHP_SESSION_NONE) session_start();
 
-// CSRF dari header
-$csrf = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
-if (!is_string($csrf) || empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $csrf)) {
-    http_response_code(403);
-    echo json_encode(['ok' => false, 'message' => 'CSRF tidak valid.']);
-    exit;
-}
-
-$raw  = file_get_contents('php://input');
+$raw  = file_get_contents("php://input");
 $data = json_decode($raw, true);
 
 if (!is_array($data)) {
     http_response_code(400);
-    echo json_encode(['ok' => false, 'message' => 'Payload tidak valid.']);
+    echo json_encode(["ok" => false, "message" => "Payload tidak valid"]);
     exit;
 }
 
 $lat = $data['lat'] ?? null;
 $lng = $data['lng'] ?? null;
-$acc = $data['acc'] ?? null;
+$acc = $data['accuracy'] ?? null;
 
-if (!is_numeric($lat) || !is_numeric($lng)) {
+if (!is_numeric($lat) || !is_numeric($lng) || !is_numeric($acc)) {
     http_response_code(400);
-    echo json_encode(['ok' => false, 'message' => 'Koordinat tidak valid.']);
+    echo json_encode(["ok" => false, "message" => "Koordinat/akurasi tidak valid"]);
     exit;
 }
 
 $lat = (float)$lat;
 $lng = (float)$lng;
-$acc = is_numeric($acc) ? (float)$acc : null;
+$acc = (float)$acc;
 
 if ($lat < -90 || $lat > 90 || $lng < -180 || $lng > 180) {
     http_response_code(400);
-    echo json_encode(['ok' => false, 'message' => 'Koordinat di luar rentang.']);
+    echo json_encode(["ok" => false, "message" => "Rentang koordinat tidak valid"]);
     exit;
 }
 
-// Simpan lokasi ke session (akan dipakai saat submit presensi)
-$_SESSION['presensi_geo'] = [
-    'lat' => $lat,
-    'lng' => $lng,
-    'acc' => $acc,
-    'ts'  => time()
+if ($acc <= 0 || $acc > 5000) {
+    http_response_code(400);
+    echo json_encode(["ok" => false, "message" => "Akurasi tidak wajar"]);
+    exit;
+}
+
+$_SESSION['geo_lock'] = [
+    "lat" => $lat,
+    "lng" => $lng,
+    "accuracy" => $acc,
+    "captured_at" => date("Y-m-d H:i:s"),
 ];
 
-echo json_encode(['ok' => true]);
+echo json_encode(["ok" => true, "message" => "Lokasi tersimpan"]);

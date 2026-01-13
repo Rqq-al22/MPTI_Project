@@ -594,9 +594,7 @@ include __DIR__ . "/../includes/sidebar_mahasiswa.php";
             </div>
           </div>
 
-          <div class="mt-3">
-            <a class="btn btn-primary btn-sm w-100" href="<?= $asset_prefix ?>mahasiswa/monitoring_kp.php">Lihat Monitoring KP</a>
-          </div>
+       
 
         </div>
       </div>

@@ -32,3 +32,42 @@
 [2026-01-10 06:48:52] role=admin | id_user=219 | id_role=1 | pw_ok=1
 [2026-01-10 07:37:31] admin | identity=admin | found=1
 [2026-01-10 07:37:31] role=admin | id_user=219 | id_role=1 | pw_ok=1
+[2026-01-11 05:41:28] admin | identity=admin | found=1
+[2026-01-11 05:41:28] role=admin | id_user=219 | id_role=1 | pw_ok=1
+[2026-01-11 05:53:28] admin | identity=admin | found=1
+[2026-01-11 05:53:28] role=admin | id_user=219 | id_role=1 | pw_ok=1
+[2026-01-12 10:01:51] admin | identity=admin | found=1
+[2026-01-12 10:01:51] role=admin | id_user=219 | id_role=1 | pw_ok=1
+[2026-01-12 10:04:33] mahasiswa | identity=E1E124007 | found=1 | nim=E1E124007
+[2026-01-12 10:04:33] role=mahasiswa | id_user=98 | id_role=3 | pw_ok=1
+[2026-01-12 10:39:56] mahasiswa | identity=E1E124007 | found=1 | nim=E1E124007
+[2026-01-12 10:39:56] role=mahasiswa | id_user=98 | id_role=3 | pw_ok=1
+[2026-01-12 10:41:50] mahasiswa | identity=E1E124007 | found=1 | nim=E1E124007
+[2026-01-12 10:41:50] role=mahasiswa | id_user=98 | id_role=3 | pw_ok=1
+[2026-01-12 10:56:51] mahasiswa | identity=E1E124007 | found=1 | nim=E1E124007
+[2026-01-12 10:56:51] role=mahasiswa | id_user=98 | id_role=3 | pw_ok=1
+[2026-01-12 10:57:12] mahasiswa | identity=E1E124007 | found=1 | nim=E1E124007
+[2026-01-12 10:57:12] role=mahasiswa | id_user=98 | id_role=3 | pw_ok=1
+[2026-01-12 10:57:40] mahasiswa | identity=E1E124007 | found=1 | nim=E1E124007
+[2026-01-12 10:57:40] role=mahasiswa | id_user=98 | id_role=3 | pw_ok=1
+[2026-01-12 10:59:30] mahasiswa | identity=E1E124007 | found=1 | nim=E1E124007
+[2026-01-12 10:59:30] role=mahasiswa | id_user=98 | id_role=3 | pw_ok=1
+[2026-01-12 11:00:38] dosen | identity=E1E124007 | found=0 | nidn=-
+[2026-01-12 11:00:40] mahasiswa | identity=E1E124007 | found=1 | nim=E1E124007
+[2026-01-12 11:00:40] role=mahasiswa | id_user=98 | id_role=3 | pw_ok=1
+[2026-01-12 11:38:48] mahasiswa | identity=E1E124007 | found=1 | nim=E1E124007
+[2026-01-12 11:38:48] role=mahasiswa | id_user=98 | id_role=3 | pw_ok=1
+[2026-01-12 11:45:00] mahasiswa | identity=E1E124007 | found=1 | nim=E1E124007
+[2026-01-12 11:45:00] role=mahasiswa | id_user=98 | id_role=3 | pw_ok=1
+[2026-01-12 11:52:56] mahasiswa | identity=E1E124007 | found=1 | nim=E1E124007
+[2026-01-12 11:52:56] role=mahasiswa | id_user=98 | id_role=3 | pw_ok=1
+[2026-01-12 11:59:34] admin | identity=admin | found=1
+[2026-01-12 11:59:34] role=admin | id_user=219 | id_role=1 | pw_ok=1
+[2026-01-12 12:02:34] admin | identity=admin | found=1
+[2026-01-12 12:02:34] role=admin | id_user=219 | id_role=1 | pw_ok=1
+[2026-01-12 12:04:46] mahasiswa | identity=E1E124007 | found=1 | nim=E1E124007
+[2026-01-12 12:04:46] role=mahasiswa | id_user=98 | id_role=3 | pw_ok=1
+[2026-01-12 12:06:15] admin | identity=admin | found=1
+[2026-01-12 12:06:15] role=admin | id_user=219 | id_role=1 | pw_ok=1
+[2026-01-12 13:31:08] mahasiswa | identity=E1E124007 | found=1 | nim=E1E124007
+[2026-01-12 13:31:08] role=mahasiswa | id_user=98 | id_role=3 | pw_ok=1
